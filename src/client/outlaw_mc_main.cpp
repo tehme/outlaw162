@@ -12,7 +12,7 @@
 #include <boost/lockfree/spsc_queue.hpp>
 
 #include "protocol/protocol.hpp"
-#include "gfx.hpp"
+#include "client/gfx.hpp"
 
 using namespace protocol;
 using namespace protocol::msg;
@@ -118,6 +118,13 @@ size_t Handler_0xFF_DisconnectOrKick(const BinaryBuffer& _src, size_t _offset, C
 // packet is received block, message is real object
 typedef boost::lockfree::spsc_queue<std::vector<uint8_t>> LockfreePacketQueue;
 
+enum UserEventCode
+{
+	USEREVENT_RECVMESSAGE,
+
+
+};
+
 void Thread_RecvMessages(TCPsocket _socket, LockfreePacketQueue& _msgPartsQueue)
 {
 	uint8_t buf[20480];
@@ -129,7 +136,7 @@ void Thread_RecvMessages(TCPsocket _socket, LockfreePacketQueue& _msgPartsQueue)
 
 		SDL_Event msgEv;
 		msgEv.type = SDL_USEREVENT;
-		msgEv.user.code = 10; // MAGIC, replace with enum
+		msgEv.user.code = USEREVENT_RECVMESSAGE;
 		msgEv.user.data1 = &_msgPartsQueue;
 		SDL_PushEvent(&msgEv);	
 	}
@@ -224,10 +231,13 @@ int main(int argc, char* argv[])
 			}
 
 			else if(ev.type == SDL_USEREVENT)
-			{			
-				//msgParts.pop(tmpVec);
-				static_cast<LockfreePacketQueue*>(ev.user.data1)->pop(tmpVec);
-				inputBuf.insert(inputBuf.end(), tmpVec.begin(), tmpVec.end()); // COPIES COPIES
+			{
+				if(ev.user.code ==USEREVENT_RECVMESSAGE)
+				{
+					static_cast<LockfreePacketQueue*>(ev.user.data1)->pop(tmpVec);
+					inputBuf.insert(inputBuf.end(), tmpVec.begin(), tmpVec.end()); // COPIES COPIES
+				}
+				
 				
 			}
 		}
