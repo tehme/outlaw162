@@ -11,8 +11,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
 
-//#include "../protocol/protocol.hpp"
-//#include "chunk.hpp"
 #include "protocol/protocol.hpp"
 
 using namespace protocol;
@@ -104,7 +102,6 @@ size_t Handler_0x38_MapChunkBulk(const BinaryBuffer& _src, size_t _offset, Clien
 	return _offset;
 }
 
-
 size_t Handler_0xFF_DisconnectOrKick(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
 	DisconnectOrKick dok;
@@ -136,24 +133,6 @@ void Thread_RecvMessages(TCPsocket _socket, LockfreePacketQueue& _msgPartsQueue)
 	}
 
 	std::cout << "Exitting recv thread." << std::endl;
-}
-
-
-void ApplyTexture(SDL_Renderer* _ren, int _x, int _y, SDL_Texture* _tex, SDL_Rect* _clip = nullptr)
-{
-	SDL_Rect pos;
-	pos.x = _x;
-	pos.y = _y;
-	
-	if(_clip)
-	{
-		pos.w = _clip->w;
-		pos.h = _clip->h;
-	}
-	else
-		SDL_QueryTexture(_tex, NULL, NULL, &pos.w, &pos.h);
-
-	SDL_RenderCopy(_ren, _tex, _clip, &pos);
 }
 
 
@@ -208,7 +187,7 @@ int main(int argc, char* argv[])
 	g_callbacks[0x06] = Handler_0x06_SpawnPosition;
 	g_callbacks[0x08] = Handler_0x08_UpdateHealth;
 	g_callbacks[0x0D] = Handler_0x0D_PlayerPositionAndLook;
-	g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
+	//g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
 	g_callbacks[0xFF] = Handler_0xFF_DisconnectOrKick;
 
 	// Main loop part
