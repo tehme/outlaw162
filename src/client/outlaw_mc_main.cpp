@@ -12,9 +12,11 @@
 #include <boost/lockfree/spsc_queue.hpp>
 
 #include "protocol/protocol.hpp"
+#include "gfx.hpp"
 
 using namespace protocol;
 using namespace protocol::msg;
+
 
 struct ClientInfo
 {
@@ -79,7 +81,7 @@ size_t Handler_0x0D_PlayerPositionAndLook(const BinaryBuffer& _src, size_t _offs
 
 	_offset = _clientInfo.m_playerPosLook.deserialize_stc(_src, _offset);
 
-	std::cout	<< "Player position: " 
+	std::cout	<< "0x0D!\nPlayer position: " 
 				<< _clientInfo.m_playerPosLook.get_x() << " "
 				<< _clientInfo.m_playerPosLook.get_y() << " "
 				<< _clientInfo.m_playerPosLook.get_z() << std::endl;
@@ -154,7 +156,6 @@ int main(int argc, char* argv[])
 	g_clientInfo.m_socket = SDLNet_TCP_Open(&ip);
 	if(!g_clientInfo.m_socket)
 	{
-		//std::cout << "Failed to connect." << std::endl;
 		std::cout << SDL_GetError() << std::endl;
 		system("pause");
 		return 0;
@@ -173,10 +174,7 @@ int main(int argc, char* argv[])
 
 	SDL_Renderer *ren = SDL_CreateRenderer(mainWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	SDL_Texture *healthCellFullTx	= IMG_LoadTexture(ren, "res/healthcell_full.png");
-	SDL_Texture *healthCellEmptyTx	= IMG_LoadTexture(ren, "res/healthcell_empty.png");
-	SDL_Texture *healthBarTx		= IMG_LoadTexture(ren, "res/healthbar.png");
-
+	SDL_Texture *tx_healthBar		= IMG_LoadTexture(ren, "res/healthbar.png");
 	SDL_Texture *tx_healthLineFull	= IMG_LoadTexture(ren, "res/healthline_full.png");
 	SDL_Texture *tx_healthLineEmpty	= IMG_LoadTexture(ren, "res/healthline_empty.png");
 
@@ -235,7 +233,6 @@ int main(int argc, char* argv[])
 		}
 
 		// ---- Logic ----
-		//HandleMessages(inputBuf);
 		HandleMessages(inputBuf, g_callbacks, g_clientInfo);
 
 		// Sending position
@@ -250,7 +247,7 @@ int main(int argc, char* argv[])
 		// ---- Drawing ----
 		SDL_RenderClear(ren);
 		
-		ApplyTexture(ren, 10, 10, healthBarTx);
+		ApplyTexture(ren, 10, 10, tx_healthBar);
 
 		int hpInt = int(g_clientInfo.m_hp * 10); // 200 max
 		int hpLineLen = hpInt ;
@@ -265,9 +262,6 @@ int main(int argc, char* argv[])
 
 
 		SDL_RenderPresent(ren);
-
-		// Capping
-		//SDL_Delay(1);
 	}
 
 
@@ -275,15 +269,11 @@ int main(int argc, char* argv[])
 	recvThread.join();
 	SDLNet_Quit();
 
-	SDL_DestroyTexture(healthCellFullTx);
-	SDL_DestroyTexture(healthCellEmptyTx);
 	SDL_DestroyTexture(tx_healthLineFull);
 	SDL_DestroyTexture(tx_healthLineEmpty);
-	SDL_DestroyTexture(healthBarTx);
+	SDL_DestroyTexture(tx_healthBar);
 	IMG_Quit();
 
 	SDL_Quit();
-	std::cout << "FINISH" << std::endl;
-	//system("pause");
 	return 0;
 }
