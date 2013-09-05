@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <map>
 
@@ -12,7 +13,8 @@
 #include <boost/lockfree/spsc_queue.hpp>
 
 #include "protocol/protocol.hpp"
-#include "client/gfx.hpp"
+#include "gfx.hpp"
+#include "chunk.hpp"
 
 using namespace protocol;
 using namespace protocol::msg;
@@ -23,6 +25,7 @@ struct ClientInfo
 	bool m_initialPosGot;
 	PlayerPositionAndLook m_playerPosLook;
 	TCPsocket m_socket;
+	World m_world;
 
 	float m_hp;
 
@@ -38,6 +41,8 @@ struct ClientInfo
 std::map<uint8_t, std::function<size_t(const BinaryBuffer&, size_t, ClientInfo&)>> g_callbacks;
 
 ClientInfo g_clientInfo;
+
+//World g_world;
 
 
 // CALLBACKS, move
@@ -79,7 +84,7 @@ size_t Handler_0x0D_PlayerPositionAndLook(const BinaryBuffer& _src, size_t _offs
 	if(_clientInfo.m_initialPosGot == false)
 		_clientInfo.m_initialPosGot = true;
 
-	_offset = _clientInfo.m_playerPosLook.deserialize_stc(_src, _offset);
+	_offset = _clientInfo.m_playerPosLook.deserialize(_src, _offset);
 
 	std::cout	<< "0x0D!\nPlayer position: " 
 				<< _clientInfo.m_playerPosLook.get_x() << " "
@@ -93,13 +98,8 @@ size_t Handler_0x38_MapChunkBulk(const BinaryBuffer& _src, size_t _offset, Clien
 {
 	protocol::msg::MapChunkBulk tmp;
 	_offset = tmp.deserialize(_src, _offset);
+	_clientInfo.m_world.loadColumns(tmp);
 
-	std::cout << "-------- 0x38 --------\nColumns: " << tmp.get_chunkColumnCount() << std::endl;
-
-	auto meta = tmp.get_metaInformation();
-	for(auto itr = meta.begin(); itr != meta.end(); ++itr)
-		std::cout << itr->m_chunkX << " " << itr->m_chunkZ << std::endl;
-	std::cout << std::endl;
 
 	return _offset;
 }
@@ -109,6 +109,54 @@ size_t Handler_0xFF_DisconnectOrKick(const BinaryBuffer& _src, size_t _offset, C
 	DisconnectOrKick dok;
 	_offset = dok.deserialize(_src, _offset);
 	std::cout << "Disconnected." << std::endl;
+
+	return _offset;
+}
+
+
+size_t Handler_Log0x38(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+{
+	static std::ofstream logstream("log0x38.txt");
+	static int nColumnsRead = 0;
+
+	protocol::msg::MapChunkBulk tmp;
+	_offset = tmp.deserialize(_src, _offset);
+	std::vector<uint8_t> decompessed;
+	Inflate(tmp.get_data(), decompessed);
+
+	logstream	<< "-------- 0x38 --------" << std::endl 
+		<< "Deflated data size: " << tmp.get_data().size() << std::endl
+		<< "Inflated data size: " << decompessed.size() << std::endl
+		<< "Columns: " << tmp.get_chunkColumnCount() << "; skylight: " << tmp.get_skyLightSent() << std::endl
+		<< "---- Columns info ----" << std::endl;
+
+	const std::vector<protocol::msg::ChunkMetaInfo> &meta = tmp.get_metaInformation();
+	int nChunks = 0;
+
+	for(int i = 0; i < tmp.get_chunkColumnCount(); ++i)
+	{
+		logstream << "Column " << i << std::endl
+			<< "Position: " << meta[i].m_chunkX << " " << meta[i].m_chunkZ << std::endl
+			<< "Chunks present:";
+
+		for(int j = 0; j < 16; ++j)
+			if((meta[i].m_primaryBitmap >> j) & 1)
+			{
+				logstream << " " << j;
+				++nChunks;
+			}
+		logstream << std::endl << "Total chunks: " << nChunks << std::endl;
+	}
+
+	logstream << std::endl;
+
+	nColumnsRead += tmp.get_chunkColumnCount();
+	if(nColumnsRead == 400)
+	{
+		std::cout << "Logging of 0x38 packets done." << std::endl;
+		logstream.flush();
+		logstream.close();
+	}
 
 	return _offset;
 }
@@ -192,7 +240,8 @@ int main(int argc, char* argv[])
 	g_callbacks[0x06] = Handler_0x06_SpawnPosition;
 	g_callbacks[0x08] = Handler_0x08_UpdateHealth;
 	g_callbacks[0x0D] = Handler_0x0D_PlayerPositionAndLook;
-	//g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
+	g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
+	//g_callbacks[0x38] = Handler_Log0x38;
 	g_callbacks[0xFF] = Handler_0xFF_DisconnectOrKick;
 
 	// Main loop part
@@ -232,7 +281,7 @@ int main(int argc, char* argv[])
 
 			else if(ev.type == SDL_USEREVENT)
 			{
-				if(ev.user.code ==USEREVENT_RECVMESSAGE)
+				if(ev.user.code == USEREVENT_RECVMESSAGE)
 				{
 					static_cast<LockfreePacketQueue*>(ev.user.data1)->pop(tmpVec);
 					inputBuf.insert(inputBuf.end(), tmpVec.begin(), tmpVec.end()); // COPIES COPIES

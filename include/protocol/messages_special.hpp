@@ -76,8 +76,8 @@ public:
 		if(code != m_messageCode) throw WrongMessageException();
 
 		_offset = Deserialize(_src, m_x, _offset);
-		_offset = Deserialize(_src, m_y, _offset);
 		_offset = Deserialize(_src, m_stance, _offset);
+		_offset = Deserialize(_src, m_y, _offset);		
 		_offset = Deserialize(_src, m_z, _offset);
 		_offset = Deserialize(_src, m_yaw, _offset);
 		_offset = Deserialize(_src, m_pitch, _offset);
@@ -86,20 +86,10 @@ public:
 		return _offset;
 	}
 
-	virtual size_t deserialize_stc(const BinaryBuffer& _src, size_t _offset = 0)
+	virtual size_t deserialize_cts(const BinaryBuffer& _src, size_t _offset = 0)
 	{
-		uint8_t code;
-		_offset = Deserialize(_src, code, _offset);
-		if(code != m_messageCode) throw WrongMessageException();
-
-		_offset = Deserialize(_src, m_x, _offset);
-		_offset = Deserialize(_src, m_stance, _offset);
-		_offset = Deserialize(_src, m_y, _offset);		
-		_offset = Deserialize(_src, m_z, _offset);
-		_offset = Deserialize(_src, m_yaw, _offset);
-		_offset = Deserialize(_src, m_pitch, _offset);
-		_offset = Deserialize(_src, m_onGround, _offset);
-
+		_offset = deserialize(_src, _offset);
+		std::swap(m_stance, m_y);
 		return _offset;
 	}
 
@@ -441,7 +431,7 @@ class MapChunkBulk : public BaseMessage
 {
 public:
 	MapChunkBulk(){}
-	MapChunkBulk(const int16_t& _chunkColumnCount, const int32_t& _dataLength, const bool& _skyLightSent, const std::vector<int8_t>& _data, const std::vector<ChunkMetaInfo>& _metaInformation)
+	MapChunkBulk(const int16_t& _chunkColumnCount, const int32_t& _dataLength, const bool& _skyLightSent, const std::vector<uint8_t>& _data, const std::vector<ChunkMetaInfo>& _metaInformation)
 		:	m_chunkColumnCount(_chunkColumnCount)
 		,	m_dataLength(_dataLength)
 		,	m_skyLightSent(_skyLightSent)
@@ -480,13 +470,13 @@ public:
 	const int16_t& get_chunkColumnCount() const	{ return m_chunkColumnCount; }
 	const int32_t& get_dataLength() const	{ return m_dataLength; }
 	const bool& get_skyLightSent() const	{ return m_skyLightSent; }
-	const std::vector<int8_t>& get_data() const	{ return m_data; }
+	const std::vector<uint8_t>& get_data() const	{ return m_data; }
 	const std::vector<ChunkMetaInfo>& get_metaInformation() const	{ return m_metaInformation; }
 
 	void set_chunkColumnCount(const int16_t& _val)	{ m_chunkColumnCount = _val; }
 	void set_dataLength(const int32_t& _val)	{ m_dataLength = _val; }
 	void set_skyLightSent(const bool& _val)	{ m_skyLightSent = _val; }
-	void set_data(const std::vector<int8_t>& _val)	{ m_data = _val; }
+	void set_data(const std::vector<uint8_t>& _val)	{ m_data = _val; }
 	void set_metaInformation(const std::vector<ChunkMetaInfo>& _val)	{ m_metaInformation = _val; }
 
 private:
@@ -494,7 +484,7 @@ private:
 	int16_t m_chunkColumnCount;
 	int32_t m_dataLength;
 	bool m_skyLightSent;
-	std::vector<int8_t> m_data;
+	std::vector<uint8_t> m_data;
 	std::vector<ChunkMetaInfo> m_metaInformation;
 };
 
