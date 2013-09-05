@@ -26,34 +26,30 @@ struct BlockData
 };
 
 // 16x16x16 block, part of column
-class Chunk
+struct Chunk
 {
-//public:
-//	boost::multi_array<BlockData, 3> m_blocksData;
-//	boost::multi_array<uint8_t, 2> m_biomeData; // each element is 1 block column
-//	
-//
-//	Chunk()
-//		:	m_blocksData(boost::extents[16][16][16]) // YZX
-//		,	m_biomeData(boost::extents[16][16]) // ZX
-//	{}
-//
-//private:
-//	
+	boost::multi_array<BlockData, 3> m_blocksData;
+	boost::multi_array<uint8_t, 2> m_biomeData; // each element is 16x1x1 YZX
+	
 
+	Chunk()
+		:	m_blocksData(boost::extents[16][16][16]) // YZX
+		,	m_biomeData(boost::extents[16][16]) // ZX
+	{}
 };
 
 
 // 16x256x16 block, 16 chunks
-class ChunkColumn
-{
-public:
-	void read(const std::vector<uint8_t>& _columnData);
+//struct ChunkColumn
+//{
+//	 // Y
+//
+//	void read(const std::vector<uint8_t>& _columnData);
+//	
+//
+//};
 
-private:
-	boost::array<Chunk, 16> m_chunks;
-
-};
+typedef boost::array<Chunk, 16> ChunkColumn;
 
 // rename
 class World
@@ -62,15 +58,7 @@ public:
 	World(){}
 
 
-	void loadColumns(protocol::msg::MapChunkBulk& _columns)
-	{
-		for(auto itr = _columns.get_metaInformation().begin(); itr != _columns.get_metaInformation().end(); ++itr)
-		{
-			m_columnsMap[itr->m_chunkZ][itr->m_chunkX];
-			std::cout << "Storage prepared for " << itr->m_chunkX << " " << itr->m_chunkZ << std::endl;
-		}
-
-	}
+	void loadColumns(protocol::msg::MapChunkBulk& _columns);
 
 private:
 	std::map<int, std::map<int, ChunkColumn>> m_columnsMap; // ZX, in chunk coordinates
@@ -152,6 +140,39 @@ void Inflate (const std::vector<uint8_t>& _src, std::vector<uint8_t>& _dst)
 	{
 		inflateEnd(&stream);
 		std::cerr << "THROW IN INFLATE" << std::endl;
+	}
+
+}
+
+
+void World::loadColumns(protocol::msg::MapChunkBulk& _columns)
+{
+	std::vector<uint8_t> colData;
+	Inflate(_columns.get_data(), colData);
+	auto colDataItr = colData.begin();
+
+	for(auto itr = _columns.get_metaInformation().begin(); itr != _columns.get_metaInformation().end(); ++itr)
+	{
+		m_columnsMap[itr->m_chunkZ][itr->m_chunkX];
+
+		for(int chunkIndex = 0; chunkIndex < 16; ++chunkIndex)
+		{
+			if((itr->m_primaryBitmap >> chunkIndex) & 1 == 0)
+			{break;} // air starts here; rework to fill
+
+			for(int y = 0; y < 16; ++y)
+				for(int z = 0; z < 16; ++z)
+					for(int x = 0; x < 16; ++x)
+					{
+						Chunk &curChunk = m_columnsMap[itr->m_chunkZ][itr->m_chunkX][chunkIndex];
+						curChunk.m_blocksData[y][z][x].m_blockType = *colDataItr;
+						if(*colDataItr == 56) // diamond
+						std::cout << "Diamond at " << itr->m_chunkX * 16 + x << " " << y + chunkIndex * 16 << " " << itr->m_chunkZ * 16 + z << std::endl;
+						++colDataItr;
+					}
+
+		}
+
 	}
 
 }

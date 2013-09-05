@@ -15,6 +15,7 @@
 #include "protocol/protocol.hpp"
 #include "gfx.hpp"
 #include "chunk.hpp"
+#include "debug.hpp"
 
 using namespace protocol;
 using namespace protocol::msg;
@@ -116,49 +117,53 @@ size_t Handler_0xFF_DisconnectOrKick(const BinaryBuffer& _src, size_t _offset, C
 
 size_t Handler_Log0x38(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
-	static std::ofstream logstream("log0x38.txt");
-	static int nColumnsRead = 0;
-
-	protocol::msg::MapChunkBulk tmp;
+	static bool isFirstPacket = true;
+	static protocol::msg::MapChunkBulk tmp;
 	_offset = tmp.deserialize(_src, _offset);
-	std::vector<uint8_t> decompessed;
-	Inflate(tmp.get_data(), decompessed);
 
-	logstream	<< "-------- 0x38 --------" << std::endl 
-		<< "Deflated data size: " << tmp.get_data().size() << std::endl
-		<< "Inflated data size: " << decompessed.size() << std::endl
-		<< "Columns: " << tmp.get_chunkColumnCount() << "; skylight: " << tmp.get_skyLightSent() << std::endl
-		<< "---- Columns info ----" << std::endl;
-
-	const std::vector<protocol::msg::ChunkMetaInfo> &meta = tmp.get_metaInformation();
-	int nChunks = 0;
-
-	for(int i = 0; i < tmp.get_chunkColumnCount(); ++i)
+	if(isFirstPacket)
 	{
-		logstream << "Column " << i << std::endl
-			<< "Position: " << meta[i].m_chunkX << " " << meta[i].m_chunkZ << std::endl
-			<< "Chunks present:";
+		std::ofstream logstream("log0x38.txt");
+		std::vector<uint8_t> decompressed;
+		Inflate(tmp.get_data(), decompressed);
 
-		for(int j = 0; j < 16; ++j)
-			if((meta[i].m_primaryBitmap >> j) & 1)
-			{
-				logstream << " " << j;
-				++nChunks;
-			}
-		logstream << std::endl << "Total chunks: " << nChunks << std::endl;
-	}
+		logstream	<< "-------- 0x38 --------" << std::endl 
+			<< "Deflated data size: " << tmp.get_data().size() << std::endl
+			<< "Inflated data size: " << decompressed.size() << std::endl
+			<< "Columns: " << tmp.get_chunkColumnCount() << "; skylight: " << tmp.get_skyLightSent() << std::endl
+			<< "---- Columns info ----" << std::endl;
 
-	logstream << std::endl;
+		const std::vector<protocol::msg::ChunkMetaInfo> &meta = tmp.get_metaInformation();
+		int nChunks = 0;
 
-	nColumnsRead += tmp.get_chunkColumnCount();
-	if(nColumnsRead == 400)
-	{
+		for(int i = 0; i < tmp.get_chunkColumnCount(); ++i)
+		{
+			logstream << "Column " << i << std::endl
+				<< "Position: " << meta[i].m_chunkX << " " << meta[i].m_chunkZ << std::endl
+				<< "Chunks present:";
+
+			for(int j = 0; j < 16; ++j)
+				if((meta[i].m_primaryBitmap >> j) & 1)
+				{
+					logstream << " " << j;
+					++nChunks;
+				}
+				logstream << std::endl << "Total chunks: " << nChunks << std::endl << "Dump: ";
+				DumpHex(decompressed.data(), decompressed.size(), logstream);
+				logstream << std::endl;
+		}
+
+		logstream << std::endl;
+
 		std::cout << "Logging of 0x38 packets done." << std::endl;
 		logstream.flush();
 		logstream.close();
+		isFirstPacket = false;
+		
 	}
 
 	return _offset;
+	
 }
 
 //------------------------------------------------------------------------------
@@ -202,7 +207,7 @@ int main(int argc, char* argv[])
 	BinaryBuffer outputBuf, inputBuf;
 
 	// Initial message
-	Handshake(74, L"Tester3", L"localhost", 25565).serialize(outputBuf);
+	Handshake(74, L"Tester4", L"localhost", 25565).serialize(outputBuf);
 	ClientStatuses(0).serialize(outputBuf);
 
 	// Network part
@@ -240,8 +245,8 @@ int main(int argc, char* argv[])
 	g_callbacks[0x06] = Handler_0x06_SpawnPosition;
 	g_callbacks[0x08] = Handler_0x08_UpdateHealth;
 	g_callbacks[0x0D] = Handler_0x0D_PlayerPositionAndLook;
-	g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
-	//g_callbacks[0x38] = Handler_Log0x38;
+	//g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
+	g_callbacks[0x38] = Handler_Log0x38;
 	g_callbacks[0xFF] = Handler_0xFF_DisconnectOrKick;
 
 	// Main loop part
