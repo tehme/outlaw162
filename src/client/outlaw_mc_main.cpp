@@ -46,6 +46,13 @@ ClientInfo g_clientInfo;
 //World g_world;
 
 
+void Thread_LoadColumnsBulk(protocol::msg::MapChunkBulk _srcCopy, World& _dst)
+{
+	std::cout << boost::this_thread::get_id() << " " << __FUNCTION__ << " started." << std::endl;
+	_dst.loadColumns(_srcCopy);
+	std::cout << boost::this_thread::get_id() << " " << __FUNCTION__ << " done." << std::endl;
+}
+
 // CALLBACKS, move
 
 size_t Handler_0x00_KeepAlive(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
@@ -99,8 +106,10 @@ size_t Handler_0x38_MapChunkBulk(const BinaryBuffer& _src, size_t _offset, Clien
 {
 	protocol::msg::MapChunkBulk tmp;
 	_offset = tmp.deserialize(_src, _offset);
-	_clientInfo.m_world.loadColumns(tmp);
 
+	//boost::thread t(boost::bind(&World::loadColumns, boost::ref(_clientInfo.m_world), tmp)); // shit, but may work
+	_clientInfo.m_world.loadColumns(tmp);
+	//boost::thread t(boost::bind(&Thread_LoadColumnsBulk, tmp, boost::ref(_clientInfo.m_world)));
 
 	return _offset;
 }
@@ -245,8 +254,8 @@ int main(int argc, char* argv[])
 	g_callbacks[0x06] = Handler_0x06_SpawnPosition;
 	g_callbacks[0x08] = Handler_0x08_UpdateHealth;
 	g_callbacks[0x0D] = Handler_0x0D_PlayerPositionAndLook;
-	//g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
-	g_callbacks[0x38] = Handler_Log0x38;
+	g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
+	//g_callbacks[0x38] = Handler_Log0x38;
 	g_callbacks[0xFF] = Handler_0xFF_DisconnectOrKick;
 
 	// Main loop part
@@ -302,6 +311,7 @@ int main(int argc, char* argv[])
 		// Sending position
 		if(g_clientInfo.m_initialPosGot && !freeze && timer_sendPos.elapsed() >= 0.05)
 		{
+			std::cout << "Time to send position! " << timer_sendPos.elapsed() << std::endl;
 			timer_sendPos.restart();
 			outputBuf.clear();
 			g_clientInfo.m_playerPosLook.serialize(outputBuf);
