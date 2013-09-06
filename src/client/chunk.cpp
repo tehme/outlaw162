@@ -102,16 +102,17 @@ void World::loadColumns(protocol::msg::MapChunkBulk& _columns)
 
 void World::fillChunkWithAir(Chunk& _dst)
 {
-	for(int y = 0; y < 16; ++y)
-		for(int z = 0; z < 16; ++z)
-			for(int x = 0; x < 16; ++x)
-			{
-				_dst.m_blocksData[y][z][x].m_blockType		= 0;
-				_dst.m_blocksData[y][z][x].m_blockMetadata	= 0;
-				_dst.m_blocksData[y][z][x].m_blockLight		= 0;
-				_dst.m_blocksData[y][z][x].m_skyLight		= 0;
-				_dst.m_blocksData[y][z][x].m_add			= 0;
-			}
+	//for(int y = 0; y < 16; ++y)
+	//	for(int z = 0; z < 16; ++z)
+	//		for(int x = 0; x < 16; ++x)
+	//		{
+	//			//memset(&_dst.m_blocksData[y][z][x], 0, sizeof(BlockData));
+	//			memset(&_dst.get_block(x, y, z), 0, sizeof(BlockData));
+	//		}
+
+	// We can use flat array here
+	for(int i = 0; i < 4096; ++i)
+		memset(&_dst.m_blocksData[i], 0, sizeof(BlockData));
 }
 
 
@@ -120,7 +121,8 @@ size_t World::loadChunkBlockTypes(std::vector<uint8_t>& _src, size_t _offset, Ch
 	for(int y = 0; y < 16; ++y)
 		for(int z = 0; z < 16; ++z)
 			for(int x = 0; x < 16; ++x)
-				_dst.m_blocksData[y][z][x].m_blockType = _src[_offset++];
+				_dst.get_block(x, y, z).m_blockType = _src[_offset++];
+				//_dst.m_blocksData[y][z][x].m_blockType = _src[_offset++];
 
 	return _offset;
 }
@@ -130,7 +132,8 @@ ByteVecConstItr World::loadChunkBlockTypes(std::vector<uint8_t>::const_iterator 
 	for(int y = 0; y < 16; ++y)
 		for(int z = 0; z < 16; ++z)
 			for(int x = 0; x < 16; ++x)
-				_dst.m_blocksData[y][z][x].m_blockType = *_begin++;
+				_dst.get_block(x, y, z).m_blockType = *_begin++;
+				//_dst.m_blocksData[y][z][x].m_blockType = *_begin++;
 
 	return _begin;
 }

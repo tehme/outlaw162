@@ -10,6 +10,7 @@
 #include <boost/thread.hpp>
 #include <boost/timer.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/lockfree/queue.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
 
 #include "protocol/protocol.hpp"
@@ -46,12 +47,20 @@ ClientInfo g_clientInfo;
 //World g_world;
 
 
-void Thread_LoadColumnsBulk(protocol::msg::MapChunkBulk _srcCopy, World& _dst)
-{
-	std::cout << boost::this_thread::get_id() << " " << __FUNCTION__ << " started." << std::endl;
-	_dst.loadColumns(_srcCopy);
-	std::cout << boost::this_thread::get_id() << " " << __FUNCTION__ << " done." << std::endl;
-}
+//static boost::thread_group g_0x38_Loaders;
+//static boost::lockfree::queue<protocol::msg::MapChunkBulk> g_0x38_queue(400);
+//static boost::atomic<bool> g_0x38_LoadersNeeded(true);
+//
+//void Thread_LoadColumnsBulk(World& _dst, boost::lockfree::queue<protocol::msg::MapChunkBulk>& _bulks)
+//{
+//	//std::cout << boost::this_thread::get_id() << " " << __FUNCTION__ << " started." << std::endl;
+//	//_dst.loadColumns(_srcCopy);
+//	//std::cout << boost::this_thread::get_id() << " " << __FUNCTION__ << " done." << std::endl;
+//	protocol::msg::MapChunkBulk bulk;
+//
+//	while(_bulks.pop(bulk))	
+//		_dst.loadColumns(bulk);
+//}
 
 // CALLBACKS, move
 
@@ -110,6 +119,9 @@ size_t Handler_0x38_MapChunkBulk(const BinaryBuffer& _src, size_t _offset, Clien
 	//boost::thread t(boost::bind(&World::loadColumns, boost::ref(_clientInfo.m_world), tmp)); // shit, but may work
 	_clientInfo.m_world.loadColumns(tmp);
 	//boost::thread t(boost::bind(&Thread_LoadColumnsBulk, tmp, boost::ref(_clientInfo.m_world)));
+
+	
+	
 
 	return _offset;
 }

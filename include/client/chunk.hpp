@@ -41,12 +41,16 @@ struct hash<ChunkColumnID>
 {
 	size_t operator()(const ChunkColumnID& _subject) const
 	{
-		uint32_t x = static_cast<uint32_t>(_subject.m_columnX);
-		uint32_t z = static_cast<uint32_t>(_subject.m_columnZ);
+		union {int32_t x; uint32_t ux;};
+		x = _subject.m_columnX;
+		union {int32_t z; uint32_t uz;};
+		z = _subject.m_columnZ;
 
 		size_t retr = 23;
-		retr *= 31 + x;
-		retr *= 31 + z;
+		retr *= 31;
+		retr += ux;
+		retr *= 31;
+		retr += uz;
 
 		return retr;
 	}
@@ -69,14 +73,19 @@ struct BlockData
 // 16x16x16 block, part of column
 struct Chunk
 {
-	boost::multi_array<BlockData, 3> m_blocksData;
-	boost::multi_array<uint8_t, 2> m_biomeData; // each element is 16x1x1 YZX
+	//boost::multi_array<BlockData, 3> m_blocksData;
+	//boost::multi_array<uint8_t, 2> m_biomeData; // each element is 16x1x1 YZX
 	
+	boost::array<BlockData, 4096> m_blocksData; // flat representation of 
 
 	Chunk()
-		:	m_blocksData(boost::extents[16][16][16]) // YZX
-		,	m_biomeData(boost::extents[16][16]) // ZX
+		//:	m_blocksData(boost::extents[16][16][16]) // YZX
+		//,	m_biomeData(boost::extents[16][16]) // ZX
 	{}
+	
+	// YZX order
+	BlockData& get_block(int _x, int _y, int _z)				{ return  m_blocksData[_x + 16 * (_z + 16 * _y)]; }
+	const BlockData& get_block(int _x, int _y, int _z) const	{ return  get_block(_x, _y, _z); }
 };
 
 
