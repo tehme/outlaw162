@@ -1,6 +1,33 @@
 #include "chunk.hpp"
 
 
+// Coord utils
+
+int WorldToColumnRel(int _worldCoord)
+{
+	int rel = _worldCoord % 16;
+	if(rel < 0)
+		rel += 15;
+	return rel;
+}
+
+int WorldToColumnCoord(int _worldCoord)
+{
+	if(_worldCoord < 0)
+		_worldCoord -= 1; // chunk 0: -16 .. -1
+	return _worldCoord / 16;
+}
+
+int RoundWorldCoord(double _worldCoord)
+{
+	int crd = int(_worldCoord);
+	if(_worldCoord < 0)
+		crd -= 1;
+	return crd;
+}
+
+
+
 // Inflate
 
 // Dirty stolen inflate.
@@ -40,7 +67,7 @@ void Inflate (const std::vector<uint8_t>& _src, std::vector<uint8_t>& _dst)
 			// If so we're done.
 			if (result == Z_STREAM_END)
 			{
-				_dst.resize(_dst.size() - stream.avail_out);
+				_dst.resize(stream.total_out);
 				break;
 			}
 
@@ -66,21 +93,103 @@ void Inflate (const std::vector<uint8_t>& _src, std::vector<uint8_t>& _dst)
 }
 
 
+// Chunk column Public
+
+ChunkColumn::ChunkColumn(const ChunkColumn& _other)
+{
+	std::cout << "ChunkColumn copy ctr!" << std::endl;
+	//m_columnData
+	memcpy(m_columnData.data(), _other.m_columnData.data(), m_columnData.max_size());
+}
+
+size_t ChunkColumn::load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAirChunks)
+{
+	int nNonAirSquares = _nNonAirChunks * 16;
+
+	static bool dbgFirstLine = true;
+	// Block types
+	for(int y = 0; y < nNonAirSquares; ++y)
+		for(int z = 0; z < 16; ++z)
+			for(int x = 0; x < 16; ++x)
+				getBlockByRelCoords(x, y, z).m_type = _src[_offset++];
+
+	// Block metadata
+	for(int y = 0; y < nNonAirSquares; ++y)
+		for(int z = 0; z < 16; ++z)
+			for(int x = 0; x < 16; x += 2)
+			{
+				// Even-indexed items are packed into the high bits, odd-indexed into the low bits. 
+				getBlockByRelCoords(x, y, z).m_metadata = _src[_offset] >> 4;
+				getBlockByRelCoords(x + 1, y, z).m_metadata = _src[_offset] & 0x0F;
+				++_offset;
+			}
+
+	// Block light
+	for(int y = 0; y < nNonAirSquares; ++y)
+		for(int z = 0; z < 16; ++z)
+			for(int x = 0; x < 16; x += 2)
+			{
+				// Even-indexed items are packed into the high bits, odd-indexed into the low bits. 
+				getBlockByRelCoords(x, y, z).m_blockLight = _src[_offset] >> 4;
+				getBlockByRelCoords(x + 1, y, z).m_blockLight = _src[_offset] & 0x0F;
+				++_offset;
+			}
+
+	// Sky light
+	for(int y = 0; y < nNonAirSquares; ++y)
+		for(int z = 0; z < 16; ++z)
+			for(int x = 0; x < 16; x += 2)
+			{
+				// Even-indexed items are packed into the high bits, odd-indexed into the low bits. 
+				getBlockByRelCoords(x, y, z).m_skyLight = _src[_offset] >> 4;
+				getBlockByRelCoords(x + 1, y, z).m_skyLight = _src[_offset] & 0x0F;
+				++_offset;
+			}
+
+	// Add array - uses secondary bitmap (assumed 0)
+	//for(int y = 0; y < nNonAirSquares; ++y)
+	//	for(int z = 0; z < 16; ++z)
+	//		for(int x = 0; x < 16; x += 2)
+	//		{
+	//			// Even-indexed items are packed into the high bits, odd-indexed into the low bits. 
+	//			getBlockByRelCoords(x, y, z).m_add = _src[_offset] >> 4;
+	//			getBlockByRelCoords(x + 1, y, z).m_add = _src[_offset] & 0x0F;
+	//			++_offset;
+	//		}
+
+	// Skip biome array
+	_offset += 256;
+
+	// Fill rest with air	
+	for(int y = nNonAirSquares; y < 256; ++y)
+		for(int z = 0; z < 16; ++z)
+			for(int x = 0; x < 16; ++x)
+				memset(&getBlockByRelCoords(x, y, z), 0, sizeof(BlockData));
+
+	// May be bad, but FAST
+	//memset(&getBlockByRelCoords(0, nNonAirSquares, 0), 0, sizeof(BlockData) * (256 - nNonAirSquares));
+
+	
+	return _offset;
+}
+
+
 // World Public
 
-void World::loadColumns(protocol::msg::MapChunkBulk& _columns)
+void World::loadColumns(protocol::msg::MapChunkBulk& _columnsMsg)
 {
 	std::vector<uint8_t> colData;
-	Inflate(_columns.get_data(), colData);
+	Inflate(_columnsMsg.get_data(), colData);
 
 	//ByteVecConstItr colDataItr = colData.begin();
 	size_t srcOffset = 0;
 	
 	boost::timer t;
 
-	for(auto itr = _columns.get_metaInformation().begin(); itr != _columns.get_metaInformation().end(); ++itr)
+	t.restart();
+	for(auto itr = _columnsMsg.get_metaInformation().begin(); itr != _columnsMsg.get_metaInformation().end(); ++itr)
 	{
-		t.restart();
+		
 		int nChunks = 0;
 		for(int i = 0; i < 16; ++i)
 		{
@@ -89,75 +198,13 @@ void World::loadColumns(protocol::msg::MapChunkBulk& _columns)
 			++nChunks;
 		}
 
-		//colDataItr = loadColumn(colDataItr, m_columnsMap[itr->m_chunkZ][itr->m_chunkX], nChunks);
-		srcOffset = loadColumn(colData, srcOffset, m_columnsMap[ChunkColumnID(itr->m_chunkX, itr->m_chunkZ)], nChunks);
-		//srcOffset = loadColumn(colData, srcOffset, m_columnsMap[itr->m_chunkX, itr->m_chunkZ], nChunks);
-
-		std::cout << "Loading a column took " << t.elapsed() << " s" << std::endl;
+		(m_columnsMap[ChunkColumnID(itr->m_chunkX, itr->m_chunkZ)] = new ChunkColumn)->load(colData, srcOffset, nChunks);
 	}
+
+	std::cout << "Loading columns took " << t.elapsed() << " s" << std::endl;
 }
 
 
 // World Private
 
-void World::fillChunkWithAir(Chunk& _dst)
-{
-	//for(int y = 0; y < 16; ++y)
-	//	for(int z = 0; z < 16; ++z)
-	//		for(int x = 0; x < 16; ++x)
-	//		{
-	//			//memset(&_dst.m_blocksData[y][z][x], 0, sizeof(BlockData));
-	//			memset(&_dst.get_block(x, y, z), 0, sizeof(BlockData));
-	//		}
-
-	// We can use flat array here
-	for(int i = 0; i < 4096; ++i)
-		memset(&_dst.m_blocksData[i], 0, sizeof(BlockData));
-}
-
-
-size_t World::loadChunkBlockTypes(std::vector<uint8_t>& _src, size_t _offset, Chunk& _dst)
-{
-	for(int y = 0; y < 16; ++y)
-		for(int z = 0; z < 16; ++z)
-			for(int x = 0; x < 16; ++x)
-				_dst.get_block(x, y, z).m_blockType = _src[_offset++];
-				//_dst.m_blocksData[y][z][x].m_blockType = _src[_offset++];
-
-	return _offset;
-}
-
-ByteVecConstItr World::loadChunkBlockTypes(std::vector<uint8_t>::const_iterator _begin, Chunk& _dst)
-{
-	for(int y = 0; y < 16; ++y)
-		for(int z = 0; z < 16; ++z)
-			for(int x = 0; x < 16; ++x)
-				_dst.get_block(x, y, z).m_blockType = *_begin++;
-				//_dst.m_blocksData[y][z][x].m_blockType = *_begin++;
-
-	return _begin;
-}
-
-size_t World::loadColumn(std::vector<uint8_t>& _src, size_t _offset, ChunkColumn& _dst, int _nChunks)
-{
-	for(int chunkY = 0; chunkY < _nChunks; ++chunkY)
-		_offset = loadChunkBlockTypes(_src, _offset, _dst[chunkY]);
-
-	// Filling not transmitted air chunks
-	for(int chunkY = _nChunks; chunkY < 16; ++chunkY)
-		fillChunkWithAir(_dst[chunkY]);
-
-	return _offset;
-}
-
-ByteVecConstItr World::loadColumn(std::vector<uint8_t>::const_iterator _begin, ChunkColumn& _dst, int _nChunks)
-{
-	for(int chunkY = 0; chunkY < _nChunks; ++chunkY)
-		_begin = loadChunkBlockTypes(_begin, _dst[chunkY]);
-
-	// Filling not transmitted air chunks
-	for(int chunkY = _nChunks; chunkY < 16; ++chunkY)
-		fillChunkWithAir(_dst[chunkY]);
-
-	return _begin;
-}
+// 255 * 256 + 0 * 16 + 15

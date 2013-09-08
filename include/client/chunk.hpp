@@ -5,16 +5,25 @@
 #include <boost/multi_array.hpp>
 #include <cstdint>
 #include <unordered_map>
-#include "protocol/messages.hpp"
-
 #include <boost/timer.hpp>
-
 #include <zlib/zlib.h>
+#include "protocol/messages.hpp"
+//#include "debug.hpp"
 
 
 typedef std::vector<uint8_t>::const_iterator ByteVecConstItr;
 
 void Inflate(const std::vector<uint8_t>& _src, std::vector<uint8_t>& _dst);
+
+
+int WorldToColumnRel(int _worldCoord);
+int WorldToColumnCoord(int _worldCoord);
+int RoundWorldCoord(double _worldCoord);
+
+/*int ColumnRelToWorld(int _relCoord, int _colCoord)
+{
+	return 
+}*/
 
 
 struct ChunkColumnID
@@ -60,37 +69,49 @@ struct hash<ChunkColumnID>
 
 
 
-
 struct BlockData
 {
-	uint8_t m_blockType;
-	uint8_t m_blockMetadata;	// 4 bits when arrives
-	uint8_t m_blockLight;		// 4 bits when arrives
-	uint8_t m_skyLight;			// only if 'skylight' is true; 4 bits when arrives
-	uint8_t m_add;				// 4 bits when arrives; ??? wtf is this?
-};
-
-// 16x16x16 block, part of column
-struct Chunk
-{
-	//boost::multi_array<BlockData, 3> m_blocksData;
-	//boost::multi_array<uint8_t, 2> m_biomeData; // each element is 16x1x1 YZX
-	
-	boost::array<BlockData, 4096> m_blocksData; // flat representation of 
-
-	Chunk()
-		//:	m_blocksData(boost::extents[16][16][16]) // YZX
-		//,	m_biomeData(boost::extents[16][16]) // ZX
-	{}
-	
-	// YZX order
-	BlockData& get_block(int _x, int _y, int _z)				{ return  m_blocksData[_x + 16 * (_z + 16 * _y)]; }
-	const BlockData& get_block(int _x, int _y, int _z) const	{ return  get_block(_x, _y, _z); }
+	uint16_t m_type;
+	uint8_t m_metadata;		// 4 bits when arrives
+	uint8_t m_blockLight;	// 4 bits when arrives
+	uint8_t m_skyLight;		// only if 'skylight' is true; 4 bits when arrives
 };
 
 
 // 16x256x16 block, 16 chunks
-typedef boost::array<Chunk, 16> ChunkColumn;
+class ChunkColumn
+{
+public:
+	ChunkColumn()
+		//:	m_columnData(boost::extents[256][16][16]) // YZX
+	{ /*static int instances = 0; ++instances; std::cout << "Columns exist: " << instances << std::endl;*/ }
+
+	// Copy ctr
+	ChunkColumn(const ChunkColumn& _other);
+
+	~ChunkColumn()
+	{
+		//std::cout << "COLUMN DESTRUCTED!" << std::endl;
+		//system("pause");
+	}
+
+	size_t load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAirChunks);
+
+	inline BlockData& getBlockByRelCoords(int _relX, int _relY, int _relZ)
+	{
+		return m_columnData[_relY * 256 + _relZ * 16 + _relX];
+	}
+
+	inline const BlockData& getBlockByRelCoords(int _relX, int _relY, int _relZ) const
+	{
+		return m_columnData[_relY * 256 + _relZ * 16 + _relX];
+	}
+
+	//boost::multi_array<BlockData, 3> m_columnData;
+	boost::array<BlockData, 256 * 16 * 16> m_columnData; // flat representation of 3d array
+};
+
+
 
 // rename
 class World
@@ -98,21 +119,35 @@ class World
 public:
 	World(){}
 
+	~World()
+	{
+		for(auto itr = m_columnsMap.begin(); itr != m_columnsMap.end(); ++itr)
+			delete itr->second;
+	}
 
-	void loadColumns(protocol::msg::MapChunkBulk& _columns);
+	std::unordered_map<ChunkColumnID, ChunkColumn*> m_columnsMap;
+
+	void loadColumns(protocol::msg::MapChunkBulk& _columnsMsg);
+
+	inline BlockData& getBlock(int _blockX, int _blockY, int _blockZ);
+	inline const BlockData& getBlock(int _blockX, int _blockY, int _blockZ) const;
 
 private:
-	std::unordered_map<ChunkColumnID, ChunkColumn> m_columnsMap;
-
-	void fillChunkWithAir(Chunk& _dst);
-	size_t loadChunkBlockTypes(std::vector<uint8_t>& _src, size_t _offset, Chunk& _dst);
-	ByteVecConstItr loadChunkBlockTypes(ByteVecConstItr _begin, Chunk& _dst);
-	size_t loadColumn(std::vector<uint8_t>& _src, size_t _offset, ChunkColumn& _dst, int _nChunks);
-	ByteVecConstItr loadColumn(ByteVecConstItr _begin, ChunkColumn& _dst, int _nChunks);
 
 };
 
 //------------------------------------------------------------------------------
 
+BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ)
+{
+	return m_columnsMap.at(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)))
+		->getBlockByRelCoords(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
+}
+
+const BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ) const
+{
+	return m_columnsMap.at(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)))
+		->getBlockByRelCoords(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
+}
 
 #endif // _CHUNK_HPP_
