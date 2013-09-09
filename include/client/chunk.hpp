@@ -1,20 +1,23 @@
 #ifndef _CHUNK_HPP_
 #define _CHUNK_HPP_
 
+#include <unordered_map>
+#include <queue>
+#include <cstdint>
+#include <boost/timer.hpp>
 #include <boost/array.hpp>
 #include <boost/multi_array.hpp>
-#include <cstdint>
-#include <unordered_map>
-#include <boost/timer.hpp>
 #include <zlib/zlib.h>
+
 #include "protocol/messages.hpp"
-//#include "debug.hpp"
 
 
 typedef std::vector<uint8_t>::const_iterator ByteVecConstItr;
 
 void Inflate(const std::vector<uint8_t>& _src, std::vector<uint8_t>& _dst);
 
+// Exceptions
+class ColumnDoesNotExistException {};
 
 int WorldToColumnRel(int _worldCoord);
 int WorldToColumnCoord(int _worldCoord);
@@ -83,7 +86,7 @@ class ChunkColumn
 {
 public:
 	ChunkColumn()
-		:	m_columnDataRef(m_columnData.c_array(), boost::extents[256][16][16]) // YZX
+	//	:	m_columnDataRef(m_columnData.c_array(), boost::extents[256][16][16]) // YZX
 	{}
 	ChunkColumn(const ChunkColumn& _other);
 	~ChunkColumn(){}
@@ -97,28 +100,35 @@ public:
 
 private:
 	boost::array<BlockData, 256 * 16 * 16> m_columnData; // flat representation of 3d array
-	boost::multi_array_ref<BlockData, 3> m_columnDataRef;
+	//boost::multi_array_ref<BlockData, 3> m_columnDataRef;
 
 };
 
 
 BlockData& ChunkColumn::getBlock(int _relX, int _relY, int _relZ)
 {
-	//return m_columnData[_relY * 256 + _relZ * 16 + _relX];
-	return m_columnDataRef[_relY][_relZ][_relX];
+	return m_columnData[_relY * 256 + _relZ * 16 + _relX];
+	//return m_columnDataRef[_relY][_relZ][_relX];
+	// boost multi array ref is too slow
 }
 
 const BlockData& ChunkColumn::getBlock(int _relX, int _relY, int _relZ) const
 {
-	//return m_columnData[_relY * 256 + _relZ * 16 + _relX];
-	return m_columnDataRef[_relY][_relZ][_relX];
+	return m_columnData[_relY * 256 + _relZ * 16 + _relX];
+	//return m_columnDataRef[_relY][_relZ][_relX];
 }
 
 
 
 //------------------------------------------------------------------------------
 
-// rename
+struct ScheduledBlock
+{
+	int m_x, m_y, m_z;
+	BlockData m_block;
+};
+
+
 class World
 {
 public:
@@ -130,29 +140,47 @@ public:
 			delete itr->second;
 	}
 
-	std::unordered_map<ChunkColumnID, ChunkColumn*> m_columnsMap;
-
 	void loadColumns(protocol::msg::MapChunkBulk& _columnsMsg);
 
 	inline BlockData& getBlock(int _blockX, int _blockY, int _blockZ);
 	inline const BlockData& getBlock(int _blockX, int _blockY, int _blockZ) const;
 
+	// If column that block belongs to does not exist when change block message arrived,
+	// this can be used to change block when column appears.
+	// Will be called automatically when anyone tries to change block in non-existent column.
+	// Move to private?
+	void scheduleBlockChange(int _blockX, int _blockY, int _blockZ, BlockData _newBlock);
+
 private:
+	std::unordered_map<ChunkColumnID, ChunkColumn*> m_columnsMap;
+	// Merge with columns?
+	std::unordered_map<ChunkColumnID, std::queue<ScheduledBlock>> m_scheduledBlocks;
 
 };
 
 //------------------------------------------------------------------------------
 
-BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ)
-{
-	return m_columnsMap.at(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)))
-		->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
-}
-
 const BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ) const
 {
-	return m_columnsMap.at(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)))
-		->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
+	auto colItr = m_columnsMap.find(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)));
+	if(colItr == m_columnsMap.end())
+		throw ColumnDoesNotExistException();
+
+	return colItr->second->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
+
+	//return m_columnsMap.at(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)))
+	//	->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
 }
+
+BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ)
+{
+	auto colItr = m_columnsMap.find(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)));
+	if(colItr == m_columnsMap.end())
+		throw ColumnDoesNotExistException();
+
+	return colItr->second->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
+}
+
+
 
 #endif // _CHUNK_HPP_

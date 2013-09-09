@@ -2,6 +2,7 @@
 #define _GFX_HPP_
 
 
+#include <unordered_map>
 #include <sdl2/SDL.h>
 #include "chunk.hpp"
 

@@ -109,8 +109,21 @@ size_t Handler_0x35_BlockChange(const BinaryBuffer& _src, size_t _offset, Client
 	_offset = tmp.deserialize(_src, _offset);
 
 	int16_t prevBlock = _clientInfo.m_world.getBlock(tmp.get_x(), tmp.get_y(), tmp.get_z()).m_type;
-	_clientInfo.m_world.getBlock(tmp.get_x(), tmp.get_y(), tmp.get_z()).m_type = tmp.get_blockType();
-	_clientInfo.m_world.getBlock(tmp.get_x(), tmp.get_y(), tmp.get_z()).m_metadata = tmp.get_blockMetadata();
+
+	try
+	{
+		_clientInfo.m_world.getBlock(tmp.get_x(), tmp.get_y(), tmp.get_z()).m_type = tmp.get_blockType();
+		_clientInfo.m_world.getBlock(tmp.get_x(), tmp.get_y(), tmp.get_z()).m_metadata = tmp.get_blockMetadata();
+	}
+	catch(ColumnDoesNotExistException)
+	{
+		BlockData block = { tmp.get_blockType(), tmp.get_blockMetadata(), 0, 0 };
+
+		_clientInfo.m_world.scheduleBlockChange(tmp.get_x(), tmp.get_y(), tmp.get_z(), block);
+		std::cout << "Scheduled!" << std::endl;
+		return _offset;
+	}
+	
 
 	std::cout	<< "Block changed! " << tmp.get_x() << ' ' << int(tmp.get_y()) << ' ' << tmp.get_z() 
 				<< ": " << prevBlock << " to " << tmp.get_blockType();
@@ -128,19 +141,6 @@ size_t Handler_0x38_MapChunkBulk(const BinaryBuffer& _src, size_t _offset, Clien
 	protocol::msg::MapChunkBulk tmp;
 	_offset = tmp.deserialize(_src, _offset);
 	_clientInfo.m_world.loadColumns(tmp);
-
-	// DEBUG
-	/*static bool firstColumn = true;
-	if(firstColumn)
-	{
-		firstColumn = false;
-
-		std::ofstream ofs("ColumnDump.txt");
-		auto &colPair = *_clientInfo.m_world.m_columnsMap.begin();
-		DumpColumnBlockTypes(colPair.second, colPair.first, ofs);
-		ofs.flush();
-		ofs.close();
-	}*/
 
 	static int nColumns = 0;
 	nColumns += tmp.get_chunkColumnCount();
@@ -165,62 +165,10 @@ size_t Handler_0xFF_DisconnectOrKick(const BinaryBuffer& _src, size_t _offset, C
 }
 
 
-size_t Handler_Log0x38(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
-{
-	static bool isFirstPacket = true;
-	static protocol::msg::MapChunkBulk tmp;
-	_offset = tmp.deserialize(_src, _offset);
-
-	if(isFirstPacket)
-	{
-		std::ofstream logstream("log0x38.txt");
-		std::vector<uint8_t> decompressed;
-		Inflate(tmp.get_data(), decompressed);
-
-		logstream	<< "-------- 0x38 --------" << std::endl 
-			<< "Deflated data size: " << tmp.get_data().size() << std::endl
-			<< "Inflated data size: " << decompressed.size() << std::endl
-			<< "Columns: " << tmp.get_chunkColumnCount() << "; skylight: " << tmp.get_skyLightSent() << std::endl
-			<< "---- Columns info ----" << std::endl;
-
-		const std::vector<protocol::msg::ChunkMetaInfo> &meta = tmp.get_metaInformation();
-		int nChunks = 0;
-
-		for(int i = 0; i < tmp.get_chunkColumnCount(); ++i)
-		{
-			logstream << "Column " << i << std::endl
-				<< "Position: " << meta[i].m_chunkX << " " << meta[i].m_chunkZ << std::endl
-				<< "Chunks present:";
-
-			for(int j = 0; j < 16; ++j)
-				if((meta[i].m_primaryBitmap >> j) & 1)
-				{
-					logstream << " " << j;
-					++nChunks;
-				}
-				logstream << std::endl << "Total chunks: " << nChunks << std::endl << "Dump: ";
-				DumpHex(decompressed.data(), decompressed.size(), logstream);
-				logstream << std::endl;
-		}
-
-		logstream << std::endl;
-
-		std::cout << "Logging of 0x38 packets done." << std::endl;
-		logstream.flush();
-		logstream.close();
-		isFirstPacket = false;
-		
-	}
-
-	return _offset;
-	
-}
-
 //------------------------------------------------------------------------------
 
 // packet is received block, message is real object
 typedef boost::lockfree::spsc_queue<std::vector<uint8_t>> LockfreePacketQueue;
-
 
 
 void Thread_RecvMessages(TCPsocket _socket, LockfreePacketQueue& _msgPartsQueue)
@@ -296,7 +244,7 @@ int main(int argc, char* argv[])
 	g_callbacks[0x06] = Handler_0x06_SpawnPosition;
 	g_callbacks[0x08] = Handler_0x08_UpdateHealth;
 	g_callbacks[0x0D] = Handler_0x0D_PlayerPositionAndLook;
-	//g_callbacks[0x35] = Handler_0x35_BlockChange;
+	g_callbacks[0x35] = Handler_0x35_BlockChange;
 	g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
 	//g_callbacks[0x38] = Handler_Log0x38;
 	g_callbacks[0xFF] = Handler_0xFF_DisconnectOrKick;
@@ -365,7 +313,7 @@ int main(int argc, char* argv[])
 					int colZ = WorldToColumnCoord(RoundWorldCoord(g_clientInfo.m_playerPosLook.get_z()));
 					std::cout << colX << ' ' << colZ << std::endl;
 
-					tx_minimap = RenderColumnHeightsTexture(ren, 32, *g_clientInfo.m_world.m_columnsMap.at(ChunkColumnID(colX, colZ)));
+					//tx_minimap = RenderColumnHeightsTexture(ren, 32, *g_clientInfo.m_world.m_columnsMap.at(ChunkColumnID(colX, colZ)));
 					mapReceived = true;
 				}
 				
@@ -394,22 +342,23 @@ int main(int argc, char* argv[])
 
 		// ---- Drawing ----
 		SDL_RenderClear(ren);
-		
-		//ApplyTexture(ren, 10, 10, tx_healthBar);
-
-		//int hpInt = int(g_clientInfo.m_hp * 10); // 200 max
-		//int hpLineLen = hpInt ;
-		//SDL_Rect fullHpRect;
-		//fullHpRect.x = 0;
-		//fullHpRect.y = 0;
-		//fullHpRect.w = hpLineLen;
-		//fullHpRect.h = 20;
-
-		//ApplyTexture(ren, 10 + 2, 10 + 2, tx_healthLineEmpty);
-		//ApplyTexture(ren, 10 + 2, 10 + 2, tx_healthLineFull, &fullHpRect);
 
 		if(tx_minimap)
 			ApplyTexture(ren, 0, 0, tx_minimap);
+		
+
+		ApplyTexture(ren, 10, 10, tx_healthBar);
+
+		int hpInt = int(g_clientInfo.m_hp * 10); // 200 max
+		int hpLineLen = hpInt ;
+		SDL_Rect fullHpRect;
+		fullHpRect.x = 0;
+		fullHpRect.y = 0;
+		fullHpRect.w = hpLineLen;
+		fullHpRect.h = 20;
+
+		ApplyTexture(ren, 10 + 2, 10 + 2, tx_healthLineEmpty);
+		ApplyTexture(ren, 10 + 2, 10 + 2, tx_healthLineFull, &fullHpRect);
 
 
 		SDL_RenderPresent(ren);

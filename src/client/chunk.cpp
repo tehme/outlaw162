@@ -96,10 +96,9 @@ void Inflate (const std::vector<uint8_t>& _src, std::vector<uint8_t>& _dst)
 // Chunk column Public
 
 ChunkColumn::ChunkColumn(const ChunkColumn& _other)
-	:	m_columnDataRef(_other.m_columnDataRef)
+//	:	m_columnDataRef(_other.m_columnDataRef)
 {
 	std::cout << "ChunkColumn copy ctr!" << std::endl;
-	//m_columnData
 	memcpy(m_columnData.data(), _other.m_columnData.data(), m_columnData.max_size());
 }
 
@@ -163,12 +162,13 @@ size_t ChunkColumn::load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAi
 
 	// Fill rest with air	
 	/*for(int y = nNonAirSquares; y < 256; ++y)
-		for(int z = 0; z < 16; ++z)
-			for(int x = 0; x < 16; ++x)
-				memset(&getBlock(x, y, z), 0, sizeof(BlockData));*/
+	for(int z = 0; z < 16; ++z)
+	for(int x = 0; x < 16; ++x)
+	memset(&getBlock(x, y, z), 0, sizeof(BlockData));*/
 
 	// May be bad, but FAST
-	memset(&m_columnDataRef[nNonAirSquares][0][0], 0, sizeof(BlockData) * (256 - nNonAirSquares));
+	//memset(&m_columnDataRef[nNonAirSquares][0][0], 0, sizeof(BlockData) * (256 - nNonAirSquares));
+	memset(&getBlock(0, nNonAirSquares, 0), 0, sizeof(BlockData) * (256 - nNonAirSquares));
 	
 	
 	return _offset;
@@ -199,12 +199,34 @@ void World::loadColumns(protocol::msg::MapChunkBulk& _columnsMsg)
 			++nChunks;
 		}
 
-		(m_columnsMap[ChunkColumnID(itr->m_chunkX, itr->m_chunkZ)] = new ChunkColumn)->load(colData, srcOffset, nChunks);
+		ChunkColumnID curID(itr->m_chunkX, itr->m_chunkZ);
+
+		(m_columnsMap[curID] = new ChunkColumn)->load(colData, srcOffset, nChunks);
+
+		// Loading scheduled blocks
+		if(m_scheduledBlocks.find(curID) != m_scheduledBlocks.end())
+		{
+			while(!m_scheduledBlocks.at(curID).empty())
+			{
+				ScheduledBlock sb = m_scheduledBlocks.at(curID).front();
+				getBlock(sb.m_x, sb.m_y, sb.m_z) = sb.m_block;
+				m_scheduledBlocks.at(curID).pop();
+
+				std::cout << "DBG: block changed from queue!" << std::endl;
+			}
+		}
+
 	}
 
 	std::cout << "Loading columns took " << t.elapsed() << " s" << std::endl;
 }
 
+void World::scheduleBlockChange(int _blockX, int _blockY, int _blockZ, BlockData _newBlock)
+{
+	ChunkColumnID id(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ));
+	ScheduledBlock sblock = {_blockX, _blockY, _blockZ, _newBlock};
+	m_scheduledBlocks[id].push(sblock);
+}
 
 // World Private
 
