@@ -21,7 +21,7 @@ int WorldToColumnCoord(int _worldCoord)
 int RoundWorldCoord(double _worldCoord)
 {
 	int crd = int(_worldCoord);
-	if(_worldCoord < 0)
+	if(_worldCoord < std::numeric_limits<double>::epsilon())
 		crd -= 1;
 	return crd;
 }
@@ -96,6 +96,7 @@ void Inflate (const std::vector<uint8_t>& _src, std::vector<uint8_t>& _dst)
 // Chunk column Public
 
 ChunkColumn::ChunkColumn(const ChunkColumn& _other)
+	:	m_columnDataRef(_other.m_columnDataRef)
 {
 	std::cout << "ChunkColumn copy ctr!" << std::endl;
 	//m_columnData
@@ -111,7 +112,7 @@ size_t ChunkColumn::load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAi
 	for(int y = 0; y < nNonAirSquares; ++y)
 		for(int z = 0; z < 16; ++z)
 			for(int x = 0; x < 16; ++x)
-				getBlockByRelCoords(x, y, z).m_type = _src[_offset++];
+				getBlock(x, y, z).m_type = _src[_offset++];
 
 	// Block metadata
 	for(int y = 0; y < nNonAirSquares; ++y)
@@ -119,8 +120,8 @@ size_t ChunkColumn::load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAi
 			for(int x = 0; x < 16; x += 2)
 			{
 				// Even-indexed items are packed into the high bits, odd-indexed into the low bits. 
-				getBlockByRelCoords(x, y, z).m_metadata = _src[_offset] >> 4;
-				getBlockByRelCoords(x + 1, y, z).m_metadata = _src[_offset] & 0x0F;
+				getBlock(x, y, z).m_metadata = _src[_offset] >> 4;
+				getBlock(x + 1, y, z).m_metadata = _src[_offset] & 0x0F;
 				++_offset;
 			}
 
@@ -130,8 +131,8 @@ size_t ChunkColumn::load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAi
 			for(int x = 0; x < 16; x += 2)
 			{
 				// Even-indexed items are packed into the high bits, odd-indexed into the low bits. 
-				getBlockByRelCoords(x, y, z).m_blockLight = _src[_offset] >> 4;
-				getBlockByRelCoords(x + 1, y, z).m_blockLight = _src[_offset] & 0x0F;
+				getBlock(x, y, z).m_blockLight = _src[_offset] >> 4;
+				getBlock(x + 1, y, z).m_blockLight = _src[_offset] & 0x0F;
 				++_offset;
 			}
 
@@ -141,8 +142,8 @@ size_t ChunkColumn::load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAi
 			for(int x = 0; x < 16; x += 2)
 			{
 				// Even-indexed items are packed into the high bits, odd-indexed into the low bits. 
-				getBlockByRelCoords(x, y, z).m_skyLight = _src[_offset] >> 4;
-				getBlockByRelCoords(x + 1, y, z).m_skyLight = _src[_offset] & 0x0F;
+				getBlock(x, y, z).m_skyLight = _src[_offset] >> 4;
+				getBlock(x + 1, y, z).m_skyLight = _src[_offset] & 0x0F;
 				++_offset;
 			}
 
@@ -161,14 +162,14 @@ size_t ChunkColumn::load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAi
 	_offset += 256;
 
 	// Fill rest with air	
-	for(int y = nNonAirSquares; y < 256; ++y)
+	/*for(int y = nNonAirSquares; y < 256; ++y)
 		for(int z = 0; z < 16; ++z)
 			for(int x = 0; x < 16; ++x)
-				memset(&getBlockByRelCoords(x, y, z), 0, sizeof(BlockData));
+				memset(&getBlock(x, y, z), 0, sizeof(BlockData));*/
 
 	// May be bad, but FAST
-	//memset(&getBlockByRelCoords(0, nNonAirSquares, 0), 0, sizeof(BlockData) * (256 - nNonAirSquares));
-
+	memset(&m_columnDataRef[nNonAirSquares][0][0], 0, sizeof(BlockData) * (256 - nNonAirSquares));
+	
 	
 	return _offset;
 }

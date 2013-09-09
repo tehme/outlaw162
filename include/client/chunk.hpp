@@ -83,35 +83,40 @@ class ChunkColumn
 {
 public:
 	ChunkColumn()
-		//:	m_columnData(boost::extents[256][16][16]) // YZX
-	{ /*static int instances = 0; ++instances; std::cout << "Columns exist: " << instances << std::endl;*/ }
-
-	// Copy ctr
+		:	m_columnDataRef(m_columnData.c_array(), boost::extents[256][16][16]) // YZX
+	{}
 	ChunkColumn(const ChunkColumn& _other);
+	~ChunkColumn(){}
 
-	~ChunkColumn()
-	{
-		//std::cout << "COLUMN DESTRUCTED!" << std::endl;
-		//system("pause");
-	}
 
 	size_t load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAirChunks);
 
-	inline BlockData& getBlockByRelCoords(int _relX, int _relY, int _relZ)
-	{
-		return m_columnData[_relY * 256 + _relZ * 16 + _relX];
-	}
+	inline BlockData& getBlock(int _relX, int _relY, int _relZ);
+	inline const BlockData& getBlock(int _relX, int _relY, int _relZ) const;
+	
 
-	inline const BlockData& getBlockByRelCoords(int _relX, int _relY, int _relZ) const
-	{
-		return m_columnData[_relY * 256 + _relZ * 16 + _relX];
-	}
-
-	//boost::multi_array<BlockData, 3> m_columnData;
+private:
 	boost::array<BlockData, 256 * 16 * 16> m_columnData; // flat representation of 3d array
+	boost::multi_array_ref<BlockData, 3> m_columnDataRef;
+
 };
 
 
+BlockData& ChunkColumn::getBlock(int _relX, int _relY, int _relZ)
+{
+	//return m_columnData[_relY * 256 + _relZ * 16 + _relX];
+	return m_columnDataRef[_relY][_relZ][_relX];
+}
+
+const BlockData& ChunkColumn::getBlock(int _relX, int _relY, int _relZ) const
+{
+	//return m_columnData[_relY * 256 + _relZ * 16 + _relX];
+	return m_columnDataRef[_relY][_relZ][_relX];
+}
+
+
+
+//------------------------------------------------------------------------------
 
 // rename
 class World
@@ -141,13 +146,13 @@ private:
 BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ)
 {
 	return m_columnsMap.at(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)))
-		->getBlockByRelCoords(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
+		->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
 }
 
 const BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ) const
 {
 	return m_columnsMap.at(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)))
-		->getBlockByRelCoords(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
+		->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
 }
 
 #endif // _CHUNK_HPP_

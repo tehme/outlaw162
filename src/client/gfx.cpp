@@ -27,7 +27,7 @@ void BuildColumnHeightsMap(const ChunkColumn& _col, boost::multi_array<int, 2>& 
 	{
 		for(int z = 0; z < 16; ++z)
 			for(int x = 0; x < 16; ++x)
-				if(_heights[z][x] == 0 && _col.getBlockByRelCoords(x, y, z).m_type == 0)
+				if(_heights[z][x] == 0 && _col.getBlock(x, y, z).m_type == 0)
 				{
 					_heights[z][x] = y;
 					++nFilled;	

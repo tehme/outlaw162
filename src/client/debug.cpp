@@ -65,7 +65,7 @@ void DumpColumnBlockTypes(const ChunkColumn& _col, const ChunkColumnID& _colID, 
 		for(int z = 0; z < 16; ++z)
 			for(int x = 0; x < 16; ++x)
 				_ostr	<< "Block XYZ: " << x + colBeginX << ' ' << y << ' ' << z + colBeginZ
-						<< ";\ttype: " << int(_col.getBlockByRelCoords(x, y, z).m_type) << "; addr: " << &_col.getBlockByRelCoords(x, y, z) << std::endl;
+						<< ";\ttype: " << int(_col.getBlock(x, y, z).m_type) << "; addr: " << &_col.getBlock(x, y, z) << std::endl;
 	_ostr << std::endl;
 }
 
@@ -77,13 +77,13 @@ void DumpColumnHeightsMap(const ChunkColumn& _col, const ChunkColumnID& _colID)
 	for(int y = 255; y >= 0; --y)
 		for(int z = 0; z < 16; ++z)
 			for(int x = 0; x < 16; ++x)
-				if(heights[z * 16 + x] == -1 && _col.getBlockByRelCoords(x, y, z).m_type != 0)
+				if(heights[z * 16 + x] == -1 && _col.getBlock(x, y, z).m_type != 0)
 				{
 					heights[z * 16 + x] = y;
 					ofs	<< "Highest point in coords X: " << x + _colID.m_columnX * 16
 						<< " ( chunk X: " << _colID.m_columnX 
 						<< "); Z: " << z + _colID.m_columnZ * 16 << " (chunk Z: " << _colID.m_columnZ
-						<< ") is: " << y << " with block " << int(_col.getBlockByRelCoords(x, y, z).m_type) << std::endl;
+						<< ") is: " << y << " with block " << int(_col.getBlock(x, y, z).m_type) << std::endl;
 				}
 
 	ofs.flush();
