@@ -1,7 +1,7 @@
 #include "luaimage.hpp"
 
 
-namespace interface {
+namespace gui {
 namespace luaimage {
 
 
@@ -109,4 +109,4 @@ void LoadLib(lua_State* _state, SDL_Renderer* _ren)
 
 
 } // namespace luaimage
-} // namespace interface
+} // namespace gui

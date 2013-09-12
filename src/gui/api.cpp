@@ -2,7 +2,7 @@
 
 
 
-namespace interface {
+namespace gui {
 namespace api {
 
 
@@ -78,56 +78,6 @@ int Unsubscribe(lua_State* _state)
 
 
 //--------
-
-// Equivalent to:
-// for k,v in pairs(api.subscribers[_eventName]) do k[_eventName](...) end
-//void FireEvent(lua_State* _state, const std::string& _eventName, int _nArgs)
-//{
-//	// If there are 0 args, bot > top, hence push-up loop will not start.
-//	int argsTop = lua_gettop(_state); // Args end here
-//	int argsBot = argsTop - _nArgs + 1; // Args start here
-//
-//	lua_getglobal(_state, "api");
-//	lua_getfield(_state, -1, "subscribers");
-//	lua_getfield(_state, -1, _eventName.c_str());
-//
-//	// If table with event's name is not found, there are no subscribers.
-//	if(lua_isnil(_state, -1))
-//	{
-//		lua_pop(_state, 3 + _nArgs);
-//		return;
-//	}
-//
-//	// Iterating through subscribers table
-//	lua_pushnil(_state); // first key wtf
-//	while(lua_next(_state, -2) != 0)
-//	{
-//		lua_pop(_state, 1); // we don't need value; subscriber table (key) is on top
-//
-//		lua_pushstring(_state, _eventName.c_str());
-//		//lua_rawget(_state, -2); // or gettable; handler is on top
-//		lua_gettable(_state, -2);
-//		
-//		// Pushing args up, rework later if possible
-//
-//		// Subscriber
-//		lua_pushvalue(_state, -2);
-//		// Args
-//		for(int i = argsBot; i <= argsTop; ++i)
-//			lua_pushvalue(_state, i);
-//
-//		// Call
-//		lua_pcall(_state, _nArgs + 1, 0, 0);
-//
-//		if(lua_isstring(_state, -1))
-//		{
-//			std::cerr << __FUNCTION__ << ": " << lua_tostring(_state, -1) << std::endl;
-//			lua_pop(_state, 1);
-//		}
-//	}
-//
-//	lua_pop(_state, 3 + _nArgs);
-//}
 
 // Equivalent to:
 // for k,v in pairs(api.subscribers[_eventName]) do k[_eventName](...) end
@@ -220,4 +170,4 @@ void LoadLib(lua_State* _state)
 }
 
 } // namespace api
-} // namespace interface
+} // namespace gui

@@ -14,8 +14,8 @@
 #include <boost/lockfree/spsc_queue.hpp>
 
 #include "protocol/protocol.hpp"
-#include "interface/api.hpp"
-#include "interface/luaimage.hpp"
+#include "gui/api.hpp"
+#include "gui/luaimage.hpp"
 #include "gfx.hpp"
 #include "chunk.hpp"
 #include "debug.hpp"
@@ -32,6 +32,8 @@ struct ClientInfo
 	World m_world;
 	bool m_locationLoaded; // temporary hack
 
+	lua_State *m_lstate;
+
 	float m_hp;
 
 	ClientInfo()
@@ -39,6 +41,7 @@ struct ClientInfo
 		,	m_socket(nullptr)
 		,	m_hp(0.0)
 		,	m_locationLoaded(false)
+		,	m_lstate(nullptr)
 	{}
 };
 
@@ -86,6 +89,10 @@ size_t Handler_0x08_UpdateHealth(const BinaryBuffer& _src, size_t _offset, Clien
 	_offset = tmp.deserialize(_src, _offset);
 	std::cout << "Health updated! Health: " << tmp.get_health() << "; Food: " << tmp.get_food() << std::endl;
 	_clientInfo.m_hp = tmp.get_health();
+
+	// Sending event to gui
+	lua_pushinteger(_clientInfo.m_lstate, int(tmp.get_health() * 2));
+	gui::api::FireEvent(_clientInfo.m_lstate, "EV_HEALTH_CHANGED", 1);
 
 	return _offset;
 }
@@ -254,11 +261,11 @@ int main(int argc, char* argv[])
 
 
 	// Lua part
-	lua_State *lstate = luaL_newstate();
-	luaL_openlibs(lstate);
-	interface::api::LoadLib(lstate);
-	interface::luaimage::LoadLib(lstate, ren);
-	luaL_dofile(lstate, "interface.lua");
+	g_clientInfo.m_lstate = luaL_newstate();
+	luaL_openlibs(g_clientInfo.m_lstate);
+	gui::api::LoadLib(g_clientInfo.m_lstate);
+	gui::luaimage::LoadLib(g_clientInfo.m_lstate, ren);
+	luaL_dofile(g_clientInfo.m_lstate, "interface.lua");
 
 
 
@@ -346,31 +353,13 @@ int main(int argc, char* argv[])
 			SDLNet_TCP_Send(g_clientInfo.m_socket, outputBuf.data(), outputBuf.size());
 		}
 
-		// Sending logic event to GUI
-		lua_pushinteger(lstate, int(g_clientInfo.m_hp * 10));
-		interface::api::FireEvent(lstate, "EV_LOGIC", 1);
-
 		// ---- Drawing ----
 		SDL_RenderClear(ren);
 
 		if(tx_minimap)
 			ApplyTexture(ren, 0, 0, tx_minimap);
-		
 
-		//ApplyTexture(ren, 10, 10, tx_healthBar);
-
-		//int hpInt = int(g_clientInfo.m_hp * 10); // 200 max
-		//int hpLineLen = hpInt ;
-		//SDL_Rect fullHpRect;
-		//fullHpRect.x = 0;
-		//fullHpRect.y = 0;
-		//fullHpRect.w = hpLineLen;
-		//fullHpRect.h = 20;
-
-		//ApplyTexture(ren, 10 + 2, 10 + 2, tx_healthLineEmpty);
-		//ApplyTexture(ren, 10 + 2, 10 + 2, tx_healthLineFull, &fullHpRect);
-
-		interface::api::FireEvent(lstate, "EV_DRAW", 0);
+		gui::api::FireEvent(g_clientInfo.m_lstate, "EV_DRAW", 0);
 
 		SDL_RenderPresent(ren);
 	}
@@ -387,7 +376,7 @@ int main(int argc, char* argv[])
 
 	SDL_Quit();
 
-	lua_close(lstate);
+	lua_close(g_clientInfo.m_lstate); // destructor in g_clientInfo may be better
 
 	return 0;
 }

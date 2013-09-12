@@ -1,5 +1,5 @@
-#ifndef _INTERFACE_API_HPP_
-#define _INTERFACE_API_HPP_
+#ifndef _GUI_API_HPP_
+#define _GUI_API_HPP_
 
 #include <iostream>
 #include <string>
@@ -8,7 +8,7 @@
 
 
 
-namespace interface {
+namespace gui {
 namespace api {
 
 // ---- Utility subsection ----
@@ -38,7 +38,7 @@ void LoadLib(lua_State* _state);
 
 
 } // namespace api
-} // namespace interface
+} // namespace gui
 
 
-#endif // _INTERFACE_API_HPP_
+#endif // _GUI_API_HPP_
