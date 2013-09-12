@@ -94,13 +94,16 @@ public:
 
 	size_t load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAirChunks);
 
+	size_t load(std::vector<uint8_t>& _src, size_t _offset, uint16_t _PrimBitmask, uint16_t _addBitmask);
+	ByteVecConstItr load(ByteVecConstItr _begin, uint16_t _PrimBitmask, uint16_t _addBitmask);
+
 	inline BlockData& getBlock(int _relX, int _relY, int _relZ);
 	inline const BlockData& getBlock(int _relX, int _relY, int _relZ) const;
 	
 
 private:
 	boost::array<BlockData, 256 * 16 * 16> m_columnData; // flat representation of 3d array
-	//boost::multi_array_ref<BlockData, 3> m_columnDataRef;
+	
 
 };
 
@@ -160,18 +163,6 @@ private:
 
 //------------------------------------------------------------------------------
 
-const BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ) const
-{
-	auto colItr = m_columnsMap.find(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)));
-	if(colItr == m_columnsMap.end())
-		throw ColumnDoesNotExistException();
-
-	return colItr->second->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
-
-	//return m_columnsMap.at(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)))
-	//	->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
-}
-
 BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ)
 {
 	auto colItr = m_columnsMap.find(ChunkColumnID(WorldToColumnCoord(_blockX), WorldToColumnCoord(_blockZ)));
@@ -179,6 +170,12 @@ BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ)
 		throw ColumnDoesNotExistException();
 
 	return colItr->second->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));
+}
+
+
+const BlockData& World::getBlock(int _blockX, int _blockY, int _blockZ) const
+{
+	return const_cast<World*>(this)->getBlock(WorldToColumnRel(_blockX), _blockY, WorldToColumnRel(_blockZ));	
 }
 
 

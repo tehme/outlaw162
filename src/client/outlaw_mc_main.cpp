@@ -14,6 +14,8 @@
 #include <boost/lockfree/spsc_queue.hpp>
 
 #include "protocol/protocol.hpp"
+#include "interface/api.hpp"
+#include "interface/luaimage.hpp"
 #include "gfx.hpp"
 #include "chunk.hpp"
 #include "debug.hpp"
@@ -237,6 +239,7 @@ int main(int argc, char* argv[])
 	SDL_Texture *tx_healthLineEmpty	= IMG_LoadTexture(ren, "res/healthline_empty.png");
 	SDL_Texture *tx_minimap			= nullptr;
 
+
 	// Callbacks part
 	
 	g_callbacks[0x00] = Handler_0x00_KeepAlive;
@@ -244,10 +247,20 @@ int main(int argc, char* argv[])
 	g_callbacks[0x06] = Handler_0x06_SpawnPosition;
 	g_callbacks[0x08] = Handler_0x08_UpdateHealth;
 	g_callbacks[0x0D] = Handler_0x0D_PlayerPositionAndLook;
-	g_callbacks[0x35] = Handler_0x35_BlockChange;
-	g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
+	//g_callbacks[0x35] = Handler_0x35_BlockChange;
+	//g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
 	//g_callbacks[0x38] = Handler_Log0x38;
 	g_callbacks[0xFF] = Handler_0xFF_DisconnectOrKick;
+
+
+	// Lua part
+	lua_State *lstate = luaL_newstate();
+	luaL_openlibs(lstate);
+	interface::api::LoadLib(lstate);
+	interface::luaimage::LoadLib(lstate, ren);
+	luaL_dofile(lstate, "interface.lua");
+
+
 
 	// Main loop part
 
@@ -333,12 +346,9 @@ int main(int argc, char* argv[])
 			SDLNet_TCP_Send(g_clientInfo.m_socket, outputBuf.data(), outputBuf.size());
 		}
 
-		// Adding block change callback when location is loaded
-		// hack
-		if(g_callbacks.find(0x35) == g_callbacks.end() && g_clientInfo.m_locationLoaded == true)
-		{
-			//g_callbacks[0x35] = Handler_0x35_BlockChange;
-		}
+		// Sending logic event to GUI
+		lua_pushinteger(lstate, int(g_clientInfo.m_hp * 10));
+		interface::api::FireEvent(lstate, "EV_LOGIC", 1);
 
 		// ---- Drawing ----
 		SDL_RenderClear(ren);
@@ -347,19 +357,20 @@ int main(int argc, char* argv[])
 			ApplyTexture(ren, 0, 0, tx_minimap);
 		
 
-		ApplyTexture(ren, 10, 10, tx_healthBar);
+		//ApplyTexture(ren, 10, 10, tx_healthBar);
 
-		int hpInt = int(g_clientInfo.m_hp * 10); // 200 max
-		int hpLineLen = hpInt ;
-		SDL_Rect fullHpRect;
-		fullHpRect.x = 0;
-		fullHpRect.y = 0;
-		fullHpRect.w = hpLineLen;
-		fullHpRect.h = 20;
+		//int hpInt = int(g_clientInfo.m_hp * 10); // 200 max
+		//int hpLineLen = hpInt ;
+		//SDL_Rect fullHpRect;
+		//fullHpRect.x = 0;
+		//fullHpRect.y = 0;
+		//fullHpRect.w = hpLineLen;
+		//fullHpRect.h = 20;
 
-		ApplyTexture(ren, 10 + 2, 10 + 2, tx_healthLineEmpty);
-		ApplyTexture(ren, 10 + 2, 10 + 2, tx_healthLineFull, &fullHpRect);
+		//ApplyTexture(ren, 10 + 2, 10 + 2, tx_healthLineEmpty);
+		//ApplyTexture(ren, 10 + 2, 10 + 2, tx_healthLineFull, &fullHpRect);
 
+		interface::api::FireEvent(lstate, "EV_DRAW", 0);
 
 		SDL_RenderPresent(ren);
 	}
@@ -375,5 +386,8 @@ int main(int argc, char* argv[])
 	IMG_Quit();
 
 	SDL_Quit();
+
+	lua_close(lstate);
+
 	return 0;
 }

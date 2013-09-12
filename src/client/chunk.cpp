@@ -106,7 +106,6 @@ size_t ChunkColumn::load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAi
 {
 	int nNonAirSquares = _nNonAirChunks * 16;
 
-	static bool dbgFirstLine = true;
 	// Block types
 	for(int y = 0; y < nNonAirSquares; ++y)
 		for(int z = 0; z < 16; ++z)
@@ -173,6 +172,7 @@ size_t ChunkColumn::load(std::vector<uint8_t>& _src, size_t _offset, int _nNonAi
 	
 	return _offset;
 }
+
 
 
 // World Public
