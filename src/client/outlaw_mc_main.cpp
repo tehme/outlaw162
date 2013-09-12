@@ -205,6 +205,7 @@ int main(int argc, char* argv[])
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDLNet_Init();
 	IMG_Init(IMG_INIT_PNG);
+	TTF_Init();
 
 	BinaryBuffer outputBuf, inputBuf;
 
@@ -265,9 +266,14 @@ int main(int argc, char* argv[])
 	luaL_openlibs(g_clientInfo.m_lstate);
 	gui::api::LoadLib(g_clientInfo.m_lstate);
 	gui::luaimage::LoadLib(g_clientInfo.m_lstate, ren);
-	luaL_dofile(g_clientInfo.m_lstate, "interface.lua");
+	if(luaL_dofile(g_clientInfo.m_lstate, "healthbar.lua"))
+	{
+		std::cerr << __FUNCTION__ << ": " << lua_tostring(g_clientInfo.m_lstate, -1) << std::endl;
+		lua_pop(g_clientInfo.m_lstate, 1);
+	}
 
-
+	std::vector<int> vv;
+	//vv.insert(
 
 	// Main loop part
 
@@ -373,6 +379,8 @@ int main(int argc, char* argv[])
 	SDL_DestroyTexture(tx_healthLineEmpty);
 	SDL_DestroyTexture(tx_healthBar);
 	IMG_Quit();
+
+	TTF_Quit();
 
 	SDL_Quit();
 

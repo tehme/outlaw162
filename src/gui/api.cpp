@@ -6,8 +6,6 @@ namespace gui {
 namespace api {
 
 
-SDL_Surface *sf = NULL;
-
 // ---- Utility subsection; not listed in header ----
 namespace
 {
