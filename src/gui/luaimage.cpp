@@ -216,7 +216,6 @@ int Font_free(lua_State* _state)
 
 luaL_Reg imageMethods[] =
 {
-	//{"free",			Image_free}, // manual free works bad
 	{"draw",			Image_draw},
 	{"getDimensions",	Image_getDimensions},
 	{"getWidth",		Image_getWidth},
@@ -227,7 +226,6 @@ luaL_Reg imageMethods[] =
 
 luaL_Reg fontMethods[] =
 {
-	//{"free",	Font_free},
 	{"__gc",	Font_free},
 	{NULL, NULL}
 };

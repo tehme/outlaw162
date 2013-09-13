@@ -23,6 +23,9 @@
 using namespace protocol;
 using namespace protocol::msg;
 
+struct ClientInfo; // forward hack
+
+typedef std::function<size_t(const BinaryBuffer&, size_t, ClientInfo&)> MessageHandlerCallback;
 
 struct ClientInfo
 {
@@ -30,7 +33,8 @@ struct ClientInfo
 	PlayerPositionAndLook m_playerPosLook;
 	TCPsocket m_socket;
 	World m_world;
-	bool m_locationLoaded; // temporary hack
+
+	std::map<uint8_t, MessageHandlerCallback> m_callbacks;
 
 	lua_State *m_lstate;
 
@@ -40,14 +44,10 @@ struct ClientInfo
 		:	m_initialPosGot(false)
 		,	m_socket(nullptr)
 		,	m_hp(0.0)
-		,	m_locationLoaded(false)
 		,	m_lstate(nullptr)
 	{}
 };
 
-
-
-std::map<uint8_t, std::function<size_t(const BinaryBuffer&, size_t, ClientInfo&)>> g_callbacks;
 
 ClientInfo g_clientInfo;
 
@@ -63,7 +63,9 @@ enum UserEventCode
 
 size_t Handler_0x00_KeepAlive(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
-	std::cout << "Keep alive!" << std::endl;
+	static int nKeeps = 0;
+	++nKeeps;
+	std::cout << "Keep alive! " << nKeeps << std::endl;
 	return KeepAlive().deserialize(_src, _offset);
 }
 
@@ -177,6 +179,34 @@ size_t Handler_0xFF_DisconnectOrKick(const BinaryBuffer& _src, size_t _offset, C
 
 //------------------------------------------------------------------------------
 
+void LoadGUI(lua_State* _state, SDL_Renderer* _renderer, const std::string& _pathToMainGuiFile)
+{
+	_state = luaL_newstate();
+	luaL_openlibs(_state);
+	gui::api::LoadLib(_state);
+	gui::luaimage::LoadLib(_state, _renderer);
+	if(luaL_dofile(_state, _pathToMainGuiFile.c_str()))
+	{
+		std::cerr << __FUNCTION__ << ": " << lua_tostring(_state, -1) << std::endl;
+		lua_pop(_state, 1);
+	}
+}
+
+void SetMessageHandlers(std::map<uint8_t, MessageHandlerCallback>& _callbacksMap)
+{
+	_callbacksMap[0x00] = Handler_0x00_KeepAlive;
+	_callbacksMap[0x03] = Handler_0x03_Chat;
+	_callbacksMap[0x06] = Handler_0x06_SpawnPosition;
+	_callbacksMap[0x08] = Handler_0x08_UpdateHealth;
+	_callbacksMap[0x0D] = Handler_0x0D_PlayerPositionAndLook;
+	//_callbacksMap[0x35] = Handler_0x35_BlockChange;
+	//_callbacksMap[0x38] = Handler_0x38_MapChunkBulk;
+	//_callbacksMap[0x38] = Handler_Log0x38;
+	_callbacksMap[0xFF] = Handler_0xFF_DisconnectOrKick;
+}
+
+//------------------------------------------------------------------------------
+
 // packet is received block, message is real object
 typedef boost::lockfree::spsc_queue<std::vector<uint8_t>> LockfreePacketQueue;
 
@@ -243,38 +273,11 @@ int main(int argc, char* argv[])
 
 	SDL_Renderer *ren = SDL_CreateRenderer(mainWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	SDL_Texture *tx_healthBar		= IMG_LoadTexture(ren, "res/healthbar.png");
-	SDL_Texture *tx_healthLineFull	= IMG_LoadTexture(ren, "res/healthline_full.png");
-	SDL_Texture *tx_healthLineEmpty	= IMG_LoadTexture(ren, "res/healthline_empty.png");
-	SDL_Texture *tx_minimap			= nullptr;
-
-
 	// Callbacks part
-	
-	g_callbacks[0x00] = Handler_0x00_KeepAlive;
-	g_callbacks[0x03] = Handler_0x03_Chat;
-	g_callbacks[0x06] = Handler_0x06_SpawnPosition;
-	g_callbacks[0x08] = Handler_0x08_UpdateHealth;
-	g_callbacks[0x0D] = Handler_0x0D_PlayerPositionAndLook;
-	//g_callbacks[0x35] = Handler_0x35_BlockChange;
-	//g_callbacks[0x38] = Handler_0x38_MapChunkBulk;
-	//g_callbacks[0x38] = Handler_Log0x38;
-	g_callbacks[0xFF] = Handler_0xFF_DisconnectOrKick;
+	SetMessageHandlers(g_clientInfo.m_callbacks);
 
-
-	// Lua part
-	g_clientInfo.m_lstate = luaL_newstate();
-	luaL_openlibs(g_clientInfo.m_lstate);
-	gui::api::LoadLib(g_clientInfo.m_lstate);
-	gui::luaimage::LoadLib(g_clientInfo.m_lstate, ren);
-	if(luaL_dofile(g_clientInfo.m_lstate, "healthbar.lua"))
-	{
-		std::cerr << __FUNCTION__ << ": " << lua_tostring(g_clientInfo.m_lstate, -1) << std::endl;
-		lua_pop(g_clientInfo.m_lstate, 1);
-	}
-
-	std::vector<int> vv;
-	//vv.insert(
+	// GUI part
+	LoadGUI(g_clientInfo.m_lstate, ren, "healthbar.lua");
 
 	// Main loop part
 
@@ -332,16 +335,6 @@ int main(int argc, char* argv[])
 
 				else if(ev.user.code == USEREVENT_MAPRECEIVED)
 				{
-					g_clientInfo.m_locationLoaded = true;
-					//tx_minimap = RenderHeightTexture(ren, g_clientInfo.m_world);
-					//mapReceived = true;
-
-					int colX = WorldToColumnCoord(RoundWorldCoord(g_clientInfo.m_playerPosLook.get_x()));
-					int colZ = WorldToColumnCoord(RoundWorldCoord(g_clientInfo.m_playerPosLook.get_z()));
-					std::cout << colX << ' ' << colZ << std::endl;
-
-					//tx_minimap = RenderColumnHeightsTexture(ren, 32, *g_clientInfo.m_world.m_columnsMap.at(ChunkColumnID(colX, colZ)));
-					mapReceived = true;
 				}
 				
 				
@@ -349,7 +342,7 @@ int main(int argc, char* argv[])
 		}
 
 		// ---- Logic ----
-		HandleMessages(inputBuf, g_callbacks, g_clientInfo);
+		HandleMessages(inputBuf, g_clientInfo.m_callbacks, g_clientInfo);
 
 		// Sending position
 		if(g_clientInfo.m_initialPosGot && !freeze && timer_sendPos.elapsed() >= 0.05)
@@ -363,9 +356,6 @@ int main(int argc, char* argv[])
 		// ---- Drawing ----
 		SDL_RenderClear(ren);
 
-		if(tx_minimap)
-			ApplyTexture(ren, 0, 0, tx_minimap);
-
 		gui::api::FireEvent(g_clientInfo.m_lstate, "EV_DRAW", 0);
 
 		SDL_RenderPresent(ren);
@@ -377,16 +367,9 @@ int main(int argc, char* argv[])
 	SDLNet_TCP_Close(g_clientInfo.m_socket);
 	//recvThread.join();
 	SDLNet_Quit();
-
-	SDL_DestroyTexture(tx_healthLineFull);
-	SDL_DestroyTexture(tx_healthLineEmpty);
-	SDL_DestroyTexture(tx_healthBar);
 	IMG_Quit();
-
 	TTF_Quit();
-
 	SDL_Quit();
-
 
 	return 0;
 }
