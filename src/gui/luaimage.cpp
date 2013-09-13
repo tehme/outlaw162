@@ -121,8 +121,6 @@ int Image_free(lua_State* _state)
 	SDL_Texture *tx = CheckUserdata<Image>(_state, 1, IMAGE_METATABLE_NAME)->m_pData;
 	SDL_DestroyTexture(tx);
 
-	std::cout << "DEBUG: " << __FUNCTION__ << " called." << std::endl;
-
 	return 0;
 }
 
@@ -218,7 +216,7 @@ int Font_free(lua_State* _state)
 
 luaL_Reg imageMethods[] =
 {
-	{"free",			Image_free},
+	//{"free",			Image_free}, // manual free works bad
 	{"draw",			Image_draw},
 	{"getDimensions",	Image_getDimensions},
 	{"getWidth",		Image_getWidth},
@@ -229,8 +227,8 @@ luaL_Reg imageMethods[] =
 
 luaL_Reg fontMethods[] =
 {
-	{"free",	Font_free},
-	//{"__gc",	Font_free}, // font __gc causes break somewhy, fix it later
+	//{"free",	Font_free},
+	{"__gc",	Font_free},
 	{NULL, NULL}
 };
 
@@ -247,8 +245,6 @@ void LoadLib(lua_State* _state, SDL_Renderer* _ren)
 {
 	g_renderer = _ren;
 
-	std::cout << __FUNCTION__ << ": stack size before: " << lua_gettop(_state) << std::endl;
-
 	// Loading image-related api functions
 	lua_getglobal(_state, "api");
 	luaL_setfuncs(_state, apiFuncs, 0);
@@ -256,8 +252,6 @@ void LoadLib(lua_State* _state, SDL_Renderer* _ren)
 
 	CreateAndFillObjectMetatable(_state, IMAGE_METATABLE_NAME, imageMethods);
 	CreateAndFillObjectMetatable(_state, FONT_METATABLE_NAME, fontMethods);
-
-	std::cout << __FUNCTION__ << ": stack size after:  " << lua_gettop(_state) << std::endl;
 }
 
 

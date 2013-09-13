@@ -92,7 +92,8 @@ size_t Handler_0x08_UpdateHealth(const BinaryBuffer& _src, size_t _offset, Clien
 
 	// Sending event to gui
 	lua_pushinteger(_clientInfo.m_lstate, int(tmp.get_health() * 2));
-	gui::api::FireEvent(_clientInfo.m_lstate, "EV_HEALTH_CHANGED", 1);
+	lua_pushinteger(_clientInfo.m_lstate, int(tmp.get_food() * 2));
+	gui::api::FireEvent(_clientInfo.m_lstate, "EV_HEALTH_CHANGED", 2);
 
 	return _offset;
 }
@@ -371,6 +372,8 @@ int main(int argc, char* argv[])
 	}
 
 
+	lua_close(g_clientInfo.m_lstate); // destructor in g_clientInfo may be better
+
 	SDLNet_TCP_Close(g_clientInfo.m_socket);
 	//recvThread.join();
 	SDLNet_Quit();
@@ -384,7 +387,6 @@ int main(int argc, char* argv[])
 
 	SDL_Quit();
 
-	lua_close(g_clientInfo.m_lstate); // destructor in g_clientInfo may be better
 
 	return 0;
 }
