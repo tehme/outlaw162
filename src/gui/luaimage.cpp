@@ -10,11 +10,15 @@ SDL_Renderer *g_renderer; // global renderer to use
 
 // Utility functions
 
+SDL_Texture* CheckImage(lua_State* _state, int _index)
+{
+	return static_cast<Image*>(luaL_checkudata(_state, _index, IMAGE_METATABLE_NAME))->m_pData;
+}
+
 FontData CheckRenderFontData(lua_State* _state)
 {
 	FontData res;
-	//res.m_font = static_cast<TTF_Font*>(luaL_checkudata(_state, 1, FONT_METATABLE_NAME));
-	res.m_font = static_cast<TTF_Font*>(lua_touserdata(_state, 1));
+	res.m_font = CheckUserdata<Font>(_state, 1, FONT_METATABLE_NAME)->m_pData;
 	res.m_text = static_cast<const char*>(luaL_checkstring(_state, 2));
 	res.m_color.r = luaL_checkint(_state, 3);
 	res.m_color.g = luaL_checkint(_state, 4);
@@ -22,10 +26,13 @@ FontData CheckRenderFontData(lua_State* _state)
 	// alpha
 	if(lua_isnumber(_state, 6))
 		res.m_color.a = luaL_checkint(_state, 6);
+	else
+		res.m_color.a = 255;
 
 	return res;
 }
 
+// Assumes that object is on top of stack.
 void CreateAndFillObjectMetatable(lua_State* _state, const char* _metatableName, luaL_Reg* _methods)
 {
 	// Create metatable
@@ -55,9 +62,8 @@ int LoadImage(lua_State* _state)
 		std::cerr << __FUNCTION__ << ": failed to load image: " << filename << std::endl;
 		return 0;
 	}
-	
-	PushLightUserdata(_state, tx, IMAGE_METATABLE_NAME);
 
+	PushUserdata<Image>(_state, tx, IMAGE_METATABLE_NAME);
 	return 1;
 }
 
@@ -75,11 +81,7 @@ int LoadFont(lua_State* _state)
 		return 0;
 	}
 
-	//PushLightUserdata(_state, font, FONT_METATABLE_NAME);
-	lua_pushlightuserdata(_state, font);
-	luaL_getmetatable(_state, FONT_METATABLE_NAME);
-	lua_setmetatable(_state, -2);
-
+	PushUserdata<Font>(_state, font, FONT_METATABLE_NAME);
 	return 1;
 }
 
@@ -92,7 +94,7 @@ int RenderTextSolid(lua_State* _state)
 	SDL_Texture *tx = SDL_CreateTextureFromSurface(g_renderer, sf);
 	SDL_FreeSurface(sf);
 
-	PushLightUserdata(_state, tx, IMAGE_METATABLE_NAME);
+	PushUserdata<Image>(_state, tx, IMAGE_METATABLE_NAME);
 	return 1;
 }
 
@@ -101,11 +103,11 @@ int RenderTextSolid(lua_State* _state)
 int RenderTextBlended(lua_State* _state)
 {
 	FontData fd = CheckRenderFontData(_state);
-	SDL_Surface *sf = TTF_RenderText_Solid(fd.m_font, fd.m_text, fd.m_color);
+	SDL_Surface *sf = TTF_RenderText_Blended(fd.m_font, fd.m_text, fd.m_color);
 	SDL_Texture *tx = SDL_CreateTextureFromSurface(g_renderer, sf);
 	SDL_FreeSurface(sf);
 
-	PushLightUserdata(_state, tx, IMAGE_METATABLE_NAME);
+	PushUserdata<Image>(_state, tx, IMAGE_METATABLE_NAME);
 	return 1;
 }
 
@@ -116,7 +118,7 @@ int RenderTextBlended(lua_State* _state)
 // Rets: none
 int Image_free(lua_State* _state)
 {
-	SDL_Texture *tx = static_cast<SDL_Texture*>(luaL_checkudata(_state, 1, IMAGE_METATABLE_NAME));
+	SDL_Texture *tx = CheckUserdata<Image>(_state, 1, IMAGE_METATABLE_NAME)->m_pData;
 	SDL_DestroyTexture(tx);
 
 	std::cout << "DEBUG: " << __FUNCTION__ << " called." << std::endl;
@@ -128,8 +130,7 @@ int Image_free(lua_State* _state)
 // Rets: none
 int Image_draw(lua_State* _state)
 {
-
-	SDL_Texture *tx = static_cast<SDL_Texture*>(luaL_checkudata(_state,  1, IMAGE_METATABLE_NAME));
+	SDL_Texture *tx = CheckUserdata<Image>(_state, 1, IMAGE_METATABLE_NAME)->m_pData;
 
 	SDL_Rect srcRect, dstRect;
 
@@ -163,7 +164,7 @@ int Image_draw(lua_State* _state)
 // Rets: width, height: int
 int Image_getDimensions(lua_State* _state)
 {
-	SDL_Texture *tx = static_cast<SDL_Texture*>(luaL_checkudata(_state,  1, IMAGE_METATABLE_NAME));
+	SDL_Texture *tx = CheckUserdata<Image>(_state, 1, IMAGE_METATABLE_NAME)->m_pData;
 
 	int w, h;
 	SDL_QueryTexture(tx, nullptr, nullptr, &w, &h);
@@ -177,7 +178,7 @@ int Image_getDimensions(lua_State* _state)
 // Rets: width: int
 int Image_getWidth(lua_State* _state)
 {
-	SDL_Texture *tx = static_cast<SDL_Texture*>(luaL_checkudata(_state,  1, IMAGE_METATABLE_NAME));
+	SDL_Texture *tx = CheckUserdata<Image>(_state, 1, IMAGE_METATABLE_NAME)->m_pData;
 
 	int w;
 	SDL_QueryTexture(tx, nullptr, nullptr, &w, nullptr);
@@ -190,7 +191,7 @@ int Image_getWidth(lua_State* _state)
 // Rets: height: int
 int Image_getHeight(lua_State* _state)
 {
-	SDL_Texture *tx = static_cast<SDL_Texture*>(luaL_checkudata(_state,  1, IMAGE_METATABLE_NAME));
+	SDL_Texture *tx = CheckUserdata<Image>(_state, 1, IMAGE_METATABLE_NAME)->m_pData;
 
 	int h;
 	SDL_QueryTexture(tx, nullptr, nullptr, nullptr, &h);
@@ -206,7 +207,7 @@ int Image_getHeight(lua_State* _state)
 // Rets: none
 int Font_free(lua_State* _state)
 {
-	TTF_Font *font = static_cast<TTF_Font*>(luaL_checkudata(_state, 1, FONT_METATABLE_NAME));
+	TTF_Font *font = CheckUserdata<Font>(_state, 1, FONT_METATABLE_NAME)->m_pData;
 	TTF_CloseFont(font);
 
 	return 0;
@@ -229,15 +230,16 @@ luaL_Reg imageMethods[] =
 luaL_Reg fontMethods[] =
 {
 	{"free",	Font_free},
-	{"__gc",	Font_free},
+	//{"__gc",	Font_free}, // font __gc causes break somewhy, fix it later
 	{NULL, NULL}
 };
 
 luaL_Reg apiFuncs[] =
 {
-	{"LoadImage",		LoadImage},
-	{"LoadFont",		LoadFont},
-	{"RenderTextSolid",	RenderTextSolid},
+	{"LoadImage",			LoadImage},
+	{"LoadFont",			LoadFont},
+	{"RenderTextSolid",		RenderTextSolid},
+	{"RenderTextBlended",	RenderTextBlended},
 	{NULL, NULL}
 };
 
