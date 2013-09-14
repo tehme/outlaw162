@@ -1,3 +1,9 @@
+// TODO:
+// - world rendering
+// - encryption
+// - chat
+// - buffer that handles offset automatically
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -9,7 +15,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/timer.hpp>
-#include <boost/lexical_cast.hpp>
+//#include <boost/lexical_cast.hpp>
 #include <boost/lockfree/queue.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
 
@@ -20,18 +26,15 @@
 #include "chunk.hpp"
 #include "debug.hpp"
 
-using namespace protocol;
-using namespace protocol::msg;
 
 struct ClientInfo; // forward hack
 
-typedef std::function<size_t(const BinaryBuffer&, size_t, ClientInfo&)> MessageHandlerCallback;
+typedef std::function<size_t(const protocol::BinaryBuffer&, size_t, ClientInfo&)> MessageHandlerCallback;
 
 struct ClientInfo
 {
 	bool m_initialPosGot;
-	PlayerPositionAndLook m_playerPosLook;
-	TCPsocket m_socket;
+	protocol::msg::PlayerPositionAndLook m_playerPosLook;
 	World m_world;
 
 	std::map<uint8_t, MessageHandlerCallback> m_callbacks;
@@ -40,11 +43,21 @@ struct ClientInfo
 
 	float m_hp;
 
+	// Application state related part
+	bool m_quit;
+
+	// Network
+	TCPsocket m_socket;
+	protocol::BinaryBuffer m_inBuf, m_outBuf;
+
+
 	ClientInfo()
 		:	m_initialPosGot(false)
 		,	m_socket(nullptr)
 		,	m_hp(0.0)
 		,	m_lstate(nullptr)
+
+		,	m_quit(false)
 	{}
 };
 
@@ -61,33 +74,33 @@ enum UserEventCode
 
 // CALLBACKS, move
 
-size_t Handler_0x00_KeepAlive(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+size_t Handler_0x00_KeepAlive(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
 	static int nKeeps = 0;
 	++nKeeps;
 	std::cout << "Keep alive! " << nKeeps << std::endl;
-	return KeepAlive().deserialize(_src, _offset);
+	return protocol::msg::KeepAlive().deserialize(_src, _offset);
 }
 
-size_t Handler_0x03_Chat(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+size_t Handler_0x03_Chat(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
-	ChatMessage chatMsg;
+	protocol::msg::ChatMessage chatMsg;
 	_offset = chatMsg.deserialize(_src, _offset);
 	std::wcout << L"Chat message." << std::endl << chatMsg.get_jsonStr() << std::endl;
 	return _offset;
 }
 
-size_t Handler_0x06_SpawnPosition(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+size_t Handler_0x06_SpawnPosition(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
-	SpawnPosition sp;
+	protocol::msg::SpawnPosition sp;
 	_offset = sp.deserialize(_src, _offset);
 	std::cout << "Spawn Position: " << sp.get_x() << " " << sp.get_y() << " " << sp.get_z() << std::endl;
 	return _offset;
 }
 
-size_t Handler_0x08_UpdateHealth(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+size_t Handler_0x08_UpdateHealth(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
-	UpdateHealth tmp;
+	protocol::msg::UpdateHealth tmp;
 	_offset = tmp.deserialize(_src, _offset);
 	std::cout << "Health updated! Health: " << tmp.get_health() << "; Food: " << tmp.get_food() << std::endl;
 	_clientInfo.m_hp = tmp.get_health();
@@ -100,9 +113,9 @@ size_t Handler_0x08_UpdateHealth(const BinaryBuffer& _src, size_t _offset, Clien
 	return _offset;
 }
 
-size_t Handler_0x0D_PlayerPositionAndLook(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+size_t Handler_0x0D_PlayerPositionAndLook(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
-	if(_clientInfo.m_initialPosGot == false)
+	if(!_clientInfo.m_initialPosGot)
 		_clientInfo.m_initialPosGot = true;
 
 	_offset = _clientInfo.m_playerPosLook.deserialize(_src, _offset);
@@ -115,7 +128,7 @@ size_t Handler_0x0D_PlayerPositionAndLook(const BinaryBuffer& _src, size_t _offs
 	return _offset;
 }
 
-size_t Handler_0x35_BlockChange(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+size_t Handler_0x35_BlockChange(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
 	protocol::msg::BlockChange tmp;
 	_offset = tmp.deserialize(_src, _offset);
@@ -127,7 +140,7 @@ size_t Handler_0x35_BlockChange(const BinaryBuffer& _src, size_t _offset, Client
 		_clientInfo.m_world.getBlock(tmp.get_x(), tmp.get_y(), tmp.get_z()).m_type = tmp.get_blockType();
 		_clientInfo.m_world.getBlock(tmp.get_x(), tmp.get_y(), tmp.get_z()).m_metadata = tmp.get_blockMetadata();
 	}
-	catch(ColumnDoesNotExistException)
+	catch(ColumnDoesNotExistException&)
 	{
 		BlockData block = { tmp.get_blockType(), tmp.get_blockMetadata(), 0, 0 };
 
@@ -137,18 +150,21 @@ size_t Handler_0x35_BlockChange(const BinaryBuffer& _src, size_t _offset, Client
 	}
 	
 
-	std::cout	<< "Block changed! " << tmp.get_x() << ' ' << int(tmp.get_y()) << ' ' << tmp.get_z() 
+	std::cout	<< "Block changed! "
+				<< tmp.get_x() << ' '
+				<< static_cast<int>(tmp.get_y()) << ' '
+				<< tmp.get_z() 
 				<< ": " << prevBlock << " to " << tmp.get_blockType();
 	
 	if(tmp.get_blockMetadata())
-		std::cout << ':' << int(tmp.get_blockMetadata());
+		std::cout << ':' << static_cast<int>(tmp.get_blockMetadata());
 
 	std::cout << std::endl;
 
 	return _offset;
 }
 
-size_t Handler_0x38_MapChunkBulk(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+size_t Handler_0x38_MapChunkBulk(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
 	protocol::msg::MapChunkBulk tmp;
 	_offset = tmp.deserialize(_src, _offset);
@@ -167,9 +183,18 @@ size_t Handler_0x38_MapChunkBulk(const BinaryBuffer& _src, size_t _offset, Clien
 	return _offset;
 }
 
-size_t Handler_0xFF_DisconnectOrKick(const BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+size_t Handler_0x6A_ConfirmTransaction(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 {
-	DisconnectOrKick dok;
+	protocol::msg::ConfirmTransaction tmp;
+	_offset = tmp.deserialize(_src, _offset);
+	std::cout << "Confirm Transaction works!" << std::endl;
+
+	return _offset;
+}
+
+size_t Handler_0xFF_DisconnectOrKick(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+{
+	protocol::msg::DisconnectOrKick dok;
 	_offset = dok.deserialize(_src, _offset);
 	std::cout << "Disconnected." << std::endl;
 
@@ -181,7 +206,6 @@ size_t Handler_0xFF_DisconnectOrKick(const BinaryBuffer& _src, size_t _offset, C
 
 void LoadGUI(lua_State* _state, SDL_Renderer* _renderer, const std::string& _pathToMainGuiFile)
 {
-	_state = luaL_newstate();
 	luaL_openlibs(_state);
 	gui::api::LoadLib(_state);
 	gui::luaimage::LoadLib(_state, _renderer);
@@ -231,14 +255,74 @@ void Thread_RecvMessages(TCPsocket _socket, LockfreePacketQueue& _msgPartsQueue)
 }
 
 
-int main(int argc, char* argv[])
+void AppInit()
 {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDLNet_Init();
-	IMG_Init(IMG_INIT_PNG);
+	IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
 	TTF_Init();
+}
 
-	BinaryBuffer outputBuf, inputBuf;
+void AppQuit()
+{
+	SDLNet_Quit();
+	IMG_Quit();
+	TTF_Quit();
+	SDL_Quit();
+}
+
+
+// Main loop utilities
+
+void HandleEvent(const SDL_Event& _ev, ClientInfo& _clientInfo)
+{
+	if(_ev.type == SDL_QUIT)
+		_clientInfo.m_quit = true;
+
+	else if(_ev.type == SDL_KEYDOWN)
+	{
+		if(_ev.key.keysym.sym == SDLK_z)
+		{
+			int x = RoundWorldCoord(g_clientInfo.m_playerPosLook.get_x());
+			int y = RoundWorldCoord(g_clientInfo.m_playerPosLook.get_y()) - 1;
+			int z = RoundWorldCoord(g_clientInfo.m_playerPosLook.get_z());
+
+			const BlockData &block = g_clientInfo.m_world.getBlock(x, y, z);
+
+			std::cout<< x << ' ' << y << ' '<< z << " Block type: " << block.m_type << std::endl;
+		}
+	}
+
+	else if(_ev.type == SDL_USEREVENT)
+	{
+		if(_ev.user.code == USEREVENT_RECVMESSAGE)
+		{
+			static std::vector<uint8_t> msgBuf;
+			static_cast<LockfreePacketQueue*>(_ev.user.data1)->pop(msgBuf);
+			_clientInfo.m_inBuf.insert(_clientInfo.m_inBuf.end(), msgBuf.begin(), msgBuf.end());
+		}
+
+		else if(_ev.user.code == USEREVENT_MAPRECEIVED)
+		{
+		}
+
+
+	}
+}
+
+
+void Logic_SendPosition(ClientInfo& _clientInfo)
+{
+	_clientInfo.m_outBuf.clear();
+	_clientInfo.m_playerPosLook.serialize(_clientInfo.m_outBuf);
+	SDLNet_TCP_Send(_clientInfo.m_socket, _clientInfo.m_outBuf.data(), _clientInfo.m_outBuf.size());
+}
+
+
+
+int main(int argc, char* argv[])
+{
+	AppInit();
 
 	std::string host, username;
 	uint16_t port;
@@ -253,15 +337,15 @@ int main(int argc, char* argv[])
 	{
 		std::cout << SDL_GetError() << std::endl;
 		system("pause");
-		return 0;
+		return 1;
 	}
+	std::cout << "Connected!" << std::endl;
 
 	// Initial message
-	Handshake(74, std::wstring(username.begin(), username.end()), std::wstring(host.begin(), host.end()), port).serialize(outputBuf);
-	ClientStatuses(0).serialize(outputBuf);
-
-	std::cout << "Connected!" << std::endl;
-	SDLNet_TCP_Send(g_clientInfo.m_socket, outputBuf.data(), outputBuf.size());
+	protocol::msg::Handshake(74, std::wstring(username.begin(), username.end()), 
+		std::wstring(host.begin(), host.end()), port).serialize(g_clientInfo.m_outBuf);
+	protocol::msg::ClientStatuses(0).serialize(g_clientInfo.m_outBuf);
+	SDLNet_TCP_Send(g_clientInfo.m_socket, g_clientInfo.m_outBuf.data(), g_clientInfo.m_outBuf.size());
 
 
 	// Graphics part
@@ -277,99 +361,53 @@ int main(int argc, char* argv[])
 	SetMessageHandlers(g_clientInfo.m_callbacks);
 
 	// GUI part
+	g_clientInfo.m_lstate = luaL_newstate();
 	LoadGUI(g_clientInfo.m_lstate, ren, "healthbar.lua");
 
 	// Main loop part
 
-	bool quit = false;
 	SDL_Event ev;
 	LockfreePacketQueue msgParts(1000); // number is random, tweak later
 
 	std::vector<uint8_t> tmpVec;
 
-	inputBuf.reserve(102480);
+	g_clientInfo.m_inBuf.reserve(102480);
 
 	boost::thread recvThread(boost::bind(&Thread_RecvMessages, g_clientInfo.m_socket, boost::ref(msgParts)));
 	boost::timer timer_sendPos;
 
-	bool freeze = false;
 	bool mapReceived = false;
 
 	// main loop
-	while(!quit)
+	while(!g_clientInfo.m_quit)
 	{
 		// ---- Event handling ----
 		while(SDL_PollEvent(&ev))
 		{
-			if(ev.type == SDL_QUIT)
-			{
-				quit = true;
-				break;
-			}
-
-			else if(ev.type == SDL_KEYDOWN)
-			{
-				if(ev.key.keysym.sym == SDLK_SPACE)
-				{
-					freeze = !freeze;
-				}
-				else if(ev.key.keysym.sym == SDLK_z)
-				{
-					int x = RoundWorldCoord(g_clientInfo.m_playerPosLook.get_x()),
-						y = RoundWorldCoord(g_clientInfo.m_playerPosLook.get_y()) - 1,
-						z = RoundWorldCoord(g_clientInfo.m_playerPosLook.get_z());
-
-					const BlockData &block = g_clientInfo.m_world.getBlock(x, y, z);
-
-					std::cout<< x << ' ' << y << ' '<< z << " Block type: " << block.m_type << std::endl;
-				}
-			}
-
-			else if(ev.type == SDL_USEREVENT)
-			{
-				if(ev.user.code == USEREVENT_RECVMESSAGE)
-				{
-					static_cast<LockfreePacketQueue*>(ev.user.data1)->pop(tmpVec);
-					inputBuf.insert(inputBuf.end(), tmpVec.begin(), tmpVec.end()); // COPIES COPIES
-				}
-
-				else if(ev.user.code == USEREVENT_MAPRECEIVED)
-				{
-				}
-				
-				
-			}
+			HandleEvent(ev, g_clientInfo);
 		}
 
 		// ---- Logic ----
-		HandleMessages(inputBuf, g_clientInfo.m_callbacks, g_clientInfo);
+		protocol::HandleMessages(g_clientInfo.m_inBuf, g_clientInfo.m_callbacks, g_clientInfo); // bad!
 
 		// Sending position
-		if(g_clientInfo.m_initialPosGot && !freeze && timer_sendPos.elapsed() >= 0.05)
+		if(g_clientInfo.m_initialPosGot && timer_sendPos.elapsed() >= 0.05)
 		{
 			timer_sendPos.restart();
-			outputBuf.clear();
-			g_clientInfo.m_playerPosLook.serialize(outputBuf);
-			SDLNet_TCP_Send(g_clientInfo.m_socket, outputBuf.data(), outputBuf.size());
+			Logic_SendPosition(g_clientInfo);
 		}
 
 		// ---- Drawing ----
 		SDL_RenderClear(ren);
-
 		gui::api::FireEvent(g_clientInfo.m_lstate, "EV_DRAW", 0);
-
 		SDL_RenderPresent(ren);
 	}
 
-
 	lua_close(g_clientInfo.m_lstate); // destructor in g_clientInfo may be better
-
+	recvThread.interrupt(); // bad, but better than trying to access closed socket
 	SDLNet_TCP_Close(g_clientInfo.m_socket);
-	//recvThread.join();
-	SDLNet_Quit();
-	IMG_Quit();
-	TTF_Quit();
-	SDL_Quit();
+
+	AppQuit();
 
 	return 0;
 }
