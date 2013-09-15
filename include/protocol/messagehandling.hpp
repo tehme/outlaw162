@@ -14,7 +14,7 @@ void SkipMessage(protocol::BinaryBuffer& _src);
 template<class CallbackMapT, class ClientInfoT> // ClientInfoT should be renamed
 void HandleMessage(protocol::BinaryBuffer& _src, const CallbackMapT& _callbacks, ClientInfoT& _clientInfo)
 {
-	auto itr = _callbacks.find(_src[_offset]);
+	auto itr = _callbacks.find(_src.atOffset());
 	if(itr != _callbacks.end())
 		itr->second(_src, _clientInfo);
 
@@ -44,7 +44,7 @@ void HandleMessages(protocol::BinaryBuffer& _buf, const CallbackMapT& _callbacks
 		{			
 			HandleMessage(_buf, _callbacks, _clientInfo);
 		}
-		catch(PartialMessageException)
+		catch(BinaryBuffer::PartialMessageException&)
 		{
 			_buf.removeDataUntil(msgBeginOff);
 			return;

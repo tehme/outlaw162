@@ -9,6 +9,11 @@ BinaryBuffer::BinaryBuffer()
 {}
 
 
+void BinaryBuffer::addData(const std::vector<uint8_t>& _data)
+{
+	m_data.insert(m_data.end(), _data.begin(), _data.end());
+}
+
 void BinaryBuffer::removeDataUntil(size_t _offset)
 {
 	m_data.erase(m_data.begin(), m_data.begin() + _offset);
@@ -24,6 +29,11 @@ void BinaryBuffer::clear()
 {
 	m_data.clear();
 	m_offset = 0;
+}
+
+void BinaryBuffer::reserve(size_t _newCapacity)
+{
+	m_data.reserve(_newCapacity);
 }
 
 
@@ -51,6 +61,16 @@ size_t BinaryBuffer::getOffset() const
 size_t BinaryBuffer::getSize() const
 {
 	return m_data.size();
+}
+
+const std::vector<uint8_t>& BinaryBuffer::getData() const
+{
+	return m_data;
+}
+
+const uint8_t* BinaryBuffer::getFlatData() const
+{
+	return m_data.data();
 }
 
 

@@ -29,7 +29,8 @@
 
 struct ClientInfo; // forward hack
 
-typedef std::function<size_t(const protocol::SimpleBinaryBuffer&, size_t, ClientInfo&)> MessageHandlerCallback;
+//typedef std::function<size_t(const protocol::BinaryBuffer&, size_t, ClientInfo&)> MessageHandlerCallback;
+typedef std::function<void(protocol::BinaryBuffer&, ClientInfo&)> MessageHandlerCallback;
 
 struct ClientInfo
 {
@@ -48,7 +49,7 @@ struct ClientInfo
 
 	// Network
 	TCPsocket m_socket;
-	protocol::SimpleBinaryBuffer m_inBuf, m_outBuf;
+	protocol::BinaryBuffer m_inBuf, m_outBuf;
 
 
 	ClientInfo()
@@ -74,34 +75,32 @@ enum UserEventCode
 
 // CALLBACKS, move
 
-size_t Handler_0x00_KeepAlive(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+void Handler_0x00_KeepAlive(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	static int nKeeps = 0;
 	++nKeeps;
 	std::cout << "Keep alive! " << nKeeps << std::endl;
-	return protocol::msg::KeepAlive().deserialize(_src, _offset);
+	return protocol::msg::KeepAlive().deserialize(_src);
 }
 
-size_t Handler_0x03_Chat(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+void Handler_0x03_Chat(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::ChatMessage chatMsg;
-	_offset = chatMsg.deserialize(_src, _offset);
+	chatMsg.deserialize(_src);
 	std::wcout << L"Chat message." << std::endl << chatMsg.get_jsonStr() << std::endl;
-	return _offset;
 }
 
-size_t Handler_0x06_SpawnPosition(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+void Handler_0x06_SpawnPosition(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::SpawnPosition sp;
-	_offset = sp.deserialize(_src, _offset);
+	sp.deserialize(_src);
 	std::cout << "Spawn Position: " << sp.get_x() << " " << sp.get_y() << " " << sp.get_z() << std::endl;
-	return _offset;
 }
 
-size_t Handler_0x08_UpdateHealth(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+void Handler_0x08_UpdateHealth(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::UpdateHealth tmp;
-	_offset = tmp.deserialize(_src, _offset);
+	tmp.deserialize(_src);
 	std::cout << "Health updated! Health: " << tmp.get_health() << "; Food: " << tmp.get_food() << std::endl;
 	_clientInfo.m_hp = tmp.get_health();
 
@@ -109,29 +108,25 @@ size_t Handler_0x08_UpdateHealth(const protocol::SimpleBinaryBuffer& _src, size_
 	lua_pushinteger(_clientInfo.m_lstate, int(tmp.get_health() * 2));
 	lua_pushinteger(_clientInfo.m_lstate, int(tmp.get_food() * 2));
 	gui::api::FireEvent(_clientInfo.m_lstate, "EV_HEALTH_CHANGED", 2);
-
-	return _offset;
 }
 
-size_t Handler_0x0D_PlayerPositionAndLook(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+void Handler_0x0D_PlayerPositionAndLook(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	if(!_clientInfo.m_initialPosGot)
 		_clientInfo.m_initialPosGot = true;
 
-	_offset = _clientInfo.m_playerPosLook.deserialize(_src, _offset);
+	_clientInfo.m_playerPosLook.deserialize(_src);
 
 	std::cout	<< "0x0D!\nPlayer position: " 
 				<< _clientInfo.m_playerPosLook.get_x() << " "
 				<< _clientInfo.m_playerPosLook.get_y() << " "
 				<< _clientInfo.m_playerPosLook.get_z() << std::endl;
-
-	return _offset;
 }
 
-size_t Handler_0x35_BlockChange(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+void Handler_0x35_BlockChange(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::BlockChange tmp;
-	_offset = tmp.deserialize(_src, _offset);
+	tmp.deserialize(_src);
 
 	int16_t prevBlock = _clientInfo.m_world.getBlock(tmp.get_x(), tmp.get_y(), tmp.get_z()).m_type;
 
@@ -146,9 +141,8 @@ size_t Handler_0x35_BlockChange(const protocol::SimpleBinaryBuffer& _src, size_t
 
 		_clientInfo.m_world.scheduleBlockChange(tmp.get_x(), tmp.get_y(), tmp.get_z(), block);
 		std::cout << "Scheduled!" << std::endl;
-		return _offset;
-	}
-	
+		return;
+	}	
 
 	std::cout	<< "Block changed! "
 				<< tmp.get_x() << ' '
@@ -160,14 +154,12 @@ size_t Handler_0x35_BlockChange(const protocol::SimpleBinaryBuffer& _src, size_t
 		std::cout << ':' << static_cast<int>(tmp.get_blockMetadata());
 
 	std::cout << std::endl;
-
-	return _offset;
 }
 
-size_t Handler_0x38_MapChunkBulk(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+void Handler_0x38_MapChunkBulk(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::MapChunkBulk tmp;
-	_offset = tmp.deserialize(_src, _offset);
+	tmp.deserialize(_src);
 	_clientInfo.m_world.loadColumns(tmp);
 
 	static int nColumns = 0;
@@ -179,26 +171,20 @@ size_t Handler_0x38_MapChunkBulk(const protocol::SimpleBinaryBuffer& _src, size_
 		ev.user.code = USEREVENT_MAPRECEIVED;
 		SDL_PushEvent(&ev);
 	}
-	
-	return _offset;
 }
 
-size_t Handler_0x6A_ConfirmTransaction(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+void Handler_0x6A_ConfirmTransaction(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::ConfirmTransaction tmp;
-	_offset = tmp.deserialize(_src, _offset);
+	tmp.deserialize(_src);
 	std::cout << "Confirm Transaction works!" << std::endl;
-
-	return _offset;
 }
 
-size_t Handler_0xFF_DisconnectOrKick(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+void Handler_0xFF_DisconnectOrKick(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::DisconnectOrKick dok;
-	_offset = dok.deserialize(_src, _offset);
+	dok.deserialize(_src);
 	std::cout << "Disconnected." << std::endl;
-
-	return _offset;
 }
 
 
@@ -299,7 +285,8 @@ void HandleEvent(const SDL_Event& _ev, ClientInfo& _clientInfo)
 		{
 			static std::vector<uint8_t> msgBuf;
 			static_cast<LockfreePacketQueue*>(_ev.user.data1)->pop(msgBuf);
-			_clientInfo.m_inBuf.insert(_clientInfo.m_inBuf.end(), msgBuf.begin(), msgBuf.end());
+			//_clientInfo.m_inBuf.insert(_clientInfo.m_inBuf.end(), msgBuf.begin(), msgBuf.end());
+			_clientInfo.m_inBuf.addData(msgBuf);
 		}
 
 		else if(_ev.user.code == USEREVENT_MAPRECEIVED)
@@ -315,7 +302,7 @@ void Logic_SendPosition(ClientInfo& _clientInfo)
 {
 	_clientInfo.m_outBuf.clear();
 	_clientInfo.m_playerPosLook.serialize(_clientInfo.m_outBuf);
-	SDLNet_TCP_Send(_clientInfo.m_socket, _clientInfo.m_outBuf.data(), _clientInfo.m_outBuf.size());
+	SDLNet_TCP_Send(_clientInfo.m_socket, _clientInfo.m_outBuf.getFlatData(), _clientInfo.m_outBuf.getSize());
 }
 
 
@@ -345,7 +332,7 @@ int main(int argc, char* argv[])
 	protocol::msg::Handshake(74, std::wstring(username.begin(), username.end()), 
 		std::wstring(host.begin(), host.end()), port).serialize(g_clientInfo.m_outBuf);
 	protocol::msg::ClientStatuses(0).serialize(g_clientInfo.m_outBuf);
-	SDLNet_TCP_Send(g_clientInfo.m_socket, g_clientInfo.m_outBuf.data(), g_clientInfo.m_outBuf.size());
+	SDLNet_TCP_Send(g_clientInfo.m_socket, g_clientInfo.m_outBuf.getFlatData(), g_clientInfo.m_outBuf.getSize());
 
 
 	// Graphics part

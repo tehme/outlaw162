@@ -34,9 +34,11 @@ public:
 	template<>					void read(double& _dst);
 	template<>					void read(std::wstring& _dst);
 
+	void						addData(const std::vector<uint8_t>& _data);
 	void						removeDataUntil(size_t _offset);
 	void						removeReadData();
 	void						clear();
+	void						reserve(size_t _newCapacity);
 
 	uint8_t						at(size_t _offset) const;
 	uint8_t						atOffset() const;
@@ -45,6 +47,7 @@ public:
 	size_t						getOffset() const;
 	size_t						getSize() const;
 	const std::vector<uint8_t>&	getData() const;
+	const uint8_t*				getFlatData() const;
 
 	void						setOffset(size_t _val);
 	
