@@ -20,7 +20,7 @@ public:
 		_dst.write(m_messageCode);
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		int8_t code;
 		_src.read(code);
@@ -67,7 +67,7 @@ public:
 		_dst.write(m_onGround);
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		uint8_t code;
 		_src.read(code);
@@ -133,7 +133,7 @@ struct ModifierData
 		_dst.write(m_operation);
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		_src.read(m_uuidMsb);
 		_src.read(m_uuidLsb);
@@ -163,7 +163,7 @@ public:
 			itr->serialize(_dst);
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		_src.read(m_key);
 		_src.read(m_value);
@@ -211,7 +211,7 @@ public:
 			itr->serialize(_dst);
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		uint8_t code;
 		_src.read(code);
@@ -269,7 +269,7 @@ public:
 		_dst.write(m_compressedData);
 	}
 
-	virtual void deserialize(BinaryBuffer& _src)
+	virtual void deserialize(const BinaryBuffer& _src)
 	{
 		int8_t code;
 		_src.read(code);
@@ -351,7 +351,7 @@ public:
 			_dst.write(reinterpret_cast<const uint32_t&>(*itr));
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		int8_t code;
 		_src.read(code);
@@ -405,7 +405,7 @@ struct ChunkMetaInfo
 		_dst.write(m_addBitmap);
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		_src.read(m_chunkX);
 		_src.read(m_chunkZ);
@@ -441,7 +441,7 @@ public:
 			itr->serialize(_dst);
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		int8_t code;
 		_src.read(code);
@@ -511,7 +511,7 @@ public:
 		_dst.write(m_playerMotionZ);
 	}
 
-	virtual void deserialize(BinaryBuffer& _src)
+	virtual void deserialize(const BinaryBuffer& _src)
 	{
 		int8_t code;
 		_src.read(code);
@@ -602,7 +602,7 @@ public:
 		}
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		int8_t code;
 		_src.read(code);

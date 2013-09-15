@@ -8,11 +8,11 @@
 
 namespace protocol {
 
-void SkipMessage(protocol::BinaryBuffer& _src);
+void SkipMessage(const protocol::BinaryBuffer& _src);
 
 
 template<class CallbackMapT, class ClientInfoT> // ClientInfoT should be renamed
-void HandleMessage(protocol::BinaryBuffer& _src, const CallbackMapT& _callbacks, ClientInfoT& _clientInfo)
+void HandleMessage(const protocol::BinaryBuffer& _src, const CallbackMapT& _callbacks, ClientInfoT& _clientInfo)
 {
 	auto itr = _callbacks.find(_src.atOffset());
 	if(itr != _callbacks.end())

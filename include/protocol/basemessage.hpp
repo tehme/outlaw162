@@ -16,7 +16,7 @@ public:
 		std::cout << __FUNCTION__ << " is NYI." << std::endl;
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		_src.read(m_blockID);
 		if(m_blockID == -1)
@@ -48,7 +48,7 @@ public:
 		std::cout << __FUNCTION__ << " is NYI." << std::endl;
 	}
 	
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		_src.read(m_code);
 		if(m_code == 0)
@@ -79,7 +79,7 @@ struct Coordinates
 		_dst.write(m_z);
 	}
 
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		_src.read(m_x);
 		_src.read(m_y);
@@ -96,7 +96,7 @@ public:
 		std::cout << __FUNCTION__ << " is NYI." << std::endl;
 	}
 	
-	void deserialize(BinaryBuffer& _src)
+	void deserialize(const BinaryBuffer& _src)
 	{
 		while(1)
 		{
@@ -142,7 +142,7 @@ class BaseMessage
 {
 public:
 	virtual void serialize(BinaryBuffer& _dst) = 0;
-	virtual void deserialize(BinaryBuffer& _src) = 0;
+	virtual void deserialize(const BinaryBuffer& _src) = 0;
 
 private:
 

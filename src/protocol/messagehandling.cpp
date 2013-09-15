@@ -3,9 +3,8 @@
 
 namespace protocol {
 
-void SkipMessage(protocol::BinaryBuffer& _src)
+void SkipMessage(const protocol::BinaryBuffer& _src)
 {
-
 	switch(_src.atOffset())
 	{
 		case 0x00:	msg::KeepAlive().deserialize(_src);					break;

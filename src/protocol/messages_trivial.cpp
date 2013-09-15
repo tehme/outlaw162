@@ -15,7 +15,7 @@ void KeepAlive::serialize(BinaryBuffer& _dst)
 	_dst.write(m_keepAliveID);
 }
 
-void KeepAlive::deserialize(BinaryBuffer& _src)
+void KeepAlive::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -51,7 +51,7 @@ void LoginRequest::serialize(BinaryBuffer& _dst)
 	_dst.write(m_maxPlayers);
 }
 
-void LoginRequest::deserialize(BinaryBuffer& _src)
+void LoginRequest::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -100,7 +100,7 @@ void Handshake::serialize(BinaryBuffer& _dst)
 	_dst.write(m_serverPort);
 }
 
-void Handshake::deserialize(BinaryBuffer& _src)
+void Handshake::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -135,7 +135,7 @@ void TimeUpdate::serialize(BinaryBuffer& _dst)
 	_dst.write(m_timeOfDay);
 }
 
-void TimeUpdate::deserialize(BinaryBuffer& _src)
+void TimeUpdate::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -167,7 +167,7 @@ void EntityEquipment::serialize(BinaryBuffer& _dst)
 	m_item.serialize(_dst);
 }
 
-void EntityEquipment::deserialize(BinaryBuffer& _src)
+void EntityEquipment::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -202,7 +202,7 @@ void SpawnPosition::serialize(BinaryBuffer& _dst)
 	_dst.write(m_z);
 }
 
-void SpawnPosition::deserialize(BinaryBuffer& _src)
+void SpawnPosition::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -237,7 +237,7 @@ void UseEntity::serialize(BinaryBuffer& _dst)
 	_dst.write(m_mouseButton);
 }
 
-void UseEntity::deserialize(BinaryBuffer& _src)
+void UseEntity::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -272,7 +272,7 @@ void UpdateHealth::serialize(BinaryBuffer& _dst)
 	_dst.write(m_foodSaturation);
 }
 
-void UpdateHealth::deserialize(BinaryBuffer& _src)
+void UpdateHealth::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -311,7 +311,7 @@ void Respawn::serialize(BinaryBuffer& _dst)
 	_dst.write(m_levelType);
 }
 
-void Respawn::deserialize(BinaryBuffer& _src)
+void Respawn::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -348,7 +348,7 @@ void Player::serialize(BinaryBuffer& _dst)
 	_dst.write(m_onGround);
 }
 
-void Player::deserialize(BinaryBuffer& _src)
+void Player::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -381,7 +381,7 @@ void PlayerPosition::serialize(BinaryBuffer& _dst)
 	_dst.write(m_onGround);
 }
 
-void PlayerPosition::deserialize(BinaryBuffer& _src)
+void PlayerPosition::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -422,7 +422,7 @@ void PlayerLook::serialize(BinaryBuffer& _dst)
 	_dst.write(m_onGround);
 }
 
-void PlayerLook::deserialize(BinaryBuffer& _src)
+void PlayerLook::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -461,7 +461,7 @@ void PlayerDigging::serialize(BinaryBuffer& _dst)
 	_dst.write(m_face);
 }
 
-void PlayerDigging::deserialize(BinaryBuffer& _src)
+void PlayerDigging::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -512,7 +512,7 @@ void PlayerBlockPlacement::serialize(BinaryBuffer& _dst)
 	_dst.write(m_cursorPositionZ);
 }
 
-void PlayerBlockPlacement::deserialize(BinaryBuffer& _src)
+void PlayerBlockPlacement::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -558,7 +558,7 @@ void HeldItemChange::serialize(BinaryBuffer& _dst)
 	_dst.write(m_slotID);
 }
 
-void HeldItemChange::deserialize(BinaryBuffer& _src)
+void HeldItemChange::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -591,7 +591,7 @@ void UseBed::serialize(BinaryBuffer& _dst)
 	_dst.write(m_bedZ);
 }
 
-void UseBed::deserialize(BinaryBuffer& _src)
+void UseBed::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -630,7 +630,7 @@ void Animation::serialize(BinaryBuffer& _dst)
 	_dst.write(m_animation);
 }
 
-void Animation::deserialize(BinaryBuffer& _src)
+void Animation::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -662,7 +662,7 @@ void EntityAction::serialize(BinaryBuffer& _dst)
 	_dst.write(m_jumpboost);
 }
 
-void EntityAction::deserialize(BinaryBuffer& _src)
+void EntityAction::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -709,7 +709,7 @@ void SpawnNamedEntity::serialize(BinaryBuffer& _dst)
 	m_metadata.serialize(_dst);
 }
 
-void SpawnNamedEntity::deserialize(BinaryBuffer& _src)
+void SpawnNamedEntity::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -760,7 +760,7 @@ void CollectItem::serialize(BinaryBuffer& _dst)
 	_dst.write(m_collectorEID);
 }
 
-void CollectItem::deserialize(BinaryBuffer& _src)
+void CollectItem::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -802,7 +802,7 @@ void SpawnObjectOrVehicle::serialize(BinaryBuffer& _dst)
 	m_objectData.serialize(_dst);
 }
 
-void SpawnObjectOrVehicle::deserialize(BinaryBuffer& _src)
+void SpawnObjectOrVehicle::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -870,7 +870,7 @@ void SpawnMob::serialize(BinaryBuffer& _dst)
 	m_metadata.serialize(_dst);
 }
 
-void SpawnMob::deserialize(BinaryBuffer& _src)
+void SpawnMob::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -938,7 +938,7 @@ void SpawnPainting::serialize(BinaryBuffer& _dst)
 	_dst.write(m_direction);
 }
 
-void SpawnPainting::deserialize(BinaryBuffer& _src)
+void SpawnPainting::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -986,7 +986,7 @@ void SpawnExperienceOrb::serialize(BinaryBuffer& _dst)
 	_dst.write(m_count);
 }
 
-void SpawnExperienceOrb::deserialize(BinaryBuffer& _src)
+void SpawnExperienceOrb::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1029,7 +1029,7 @@ void SteerVehicle::serialize(BinaryBuffer& _dst)
 	_dst.write(m_unmount);
 }
 
-void SteerVehicle::deserialize(BinaryBuffer& _src)
+void SteerVehicle::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1069,7 +1069,7 @@ void EntityVelocity::serialize(BinaryBuffer& _dst)
 	_dst.write(m_velocityZ);
 }
 
-void EntityVelocity::deserialize(BinaryBuffer& _src)
+void EntityVelocity::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1105,7 +1105,7 @@ void DestroyEntity::serialize(BinaryBuffer& _dst)
 	_dst.write(m_entityIDs);
 }
 
-void DestroyEntity::deserialize(BinaryBuffer& _src)
+void DestroyEntity::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1132,7 +1132,7 @@ void Entity::serialize(BinaryBuffer& _dst)
 	_dst.write(m_eid);
 }
 
-void Entity::deserialize(BinaryBuffer& _src)
+void Entity::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1163,7 +1163,7 @@ void EntityRelativeMove::serialize(BinaryBuffer& _dst)
 	_dst.write(m_dz);
 }
 
-void EntityRelativeMove::deserialize(BinaryBuffer& _src)
+void EntityRelativeMove::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1201,7 +1201,7 @@ void EntityLook::serialize(BinaryBuffer& _dst)
 	_dst.write(m_pitch);
 }
 
-void EntityLook::deserialize(BinaryBuffer& _src)
+void EntityLook::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1242,7 +1242,7 @@ void EntityLookAndRelativeMove::serialize(BinaryBuffer& _dst)
 	_dst.write(m_pitch);
 }
 
-void EntityLookAndRelativeMove::deserialize(BinaryBuffer& _src)
+void EntityLookAndRelativeMove::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1291,7 +1291,7 @@ void EntityTeleport::serialize(BinaryBuffer& _dst)
 	_dst.write(m_pitch);
 }
 
-void EntityTeleport::deserialize(BinaryBuffer& _src)
+void EntityTeleport::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1333,7 +1333,7 @@ void EntityHeadLook::serialize(BinaryBuffer& _dst)
 	_dst.write(m_headYaw);
 }
 
-void EntityHeadLook::deserialize(BinaryBuffer& _src)
+void EntityHeadLook::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1363,7 +1363,7 @@ void EntityStatus::serialize(BinaryBuffer& _dst)
 	_dst.write(m_entityStatus);
 }
 
-void EntityStatus::deserialize(BinaryBuffer& _src)
+void EntityStatus::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1395,7 +1395,7 @@ void AttachEntity::serialize(BinaryBuffer& _dst)
 	_dst.write(m_leash);
 }
 
-void AttachEntity::deserialize(BinaryBuffer& _src)
+void AttachEntity::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1428,7 +1428,7 @@ void EntityMetadata::serialize(BinaryBuffer& _dst)
 	m_entityMetadata.serialize(_dst);
 }
 
-void EntityMetadata::deserialize(BinaryBuffer& _src)
+void EntityMetadata::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1462,7 +1462,7 @@ void EntityEffect::serialize(BinaryBuffer& _dst)
 	_dst.write(m_duration);
 }
 
-void EntityEffect::deserialize(BinaryBuffer& _src)
+void EntityEffect::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1498,7 +1498,7 @@ void RemoveEntityEffect::serialize(BinaryBuffer& _dst)
 	_dst.write(m_effectID);
 }
 
-void RemoveEntityEffect::deserialize(BinaryBuffer& _src)
+void RemoveEntityEffect::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1530,7 +1530,7 @@ void SetExperience::serialize(BinaryBuffer& _dst)
 	_dst.write(m_totalExperience);
 }
 
-void SetExperience::deserialize(BinaryBuffer& _src)
+void SetExperience::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1569,7 +1569,7 @@ void BlockChange::serialize(BinaryBuffer& _dst)
 	_dst.write(m_blockMetadata);
 }
 
-void BlockChange::deserialize(BinaryBuffer& _src)
+void BlockChange::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1616,7 +1616,7 @@ void BlockAction::serialize(BinaryBuffer& _dst)
 	_dst.write(m_blockID);
 }
 
-void BlockAction::deserialize(BinaryBuffer& _src)
+void BlockAction::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1664,7 +1664,7 @@ void BlockBreakAnimation::serialize(BinaryBuffer& _dst)
 	_dst.write(m_destroyStage);
 }
 
-void BlockBreakAnimation::deserialize(BinaryBuffer& _src)
+void BlockBreakAnimation::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1711,7 +1711,7 @@ void SoundOrParticleEffect::serialize(BinaryBuffer& _dst)
 	_dst.write(m_disableRelativeVolume);
 }
 
-void SoundOrParticleEffect::deserialize(BinaryBuffer& _src)
+void SoundOrParticleEffect::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1761,7 +1761,7 @@ void NamedSoundEffect::serialize(BinaryBuffer& _dst)
 	_dst.write(m_pitch);
 }
 
-void NamedSoundEffect::deserialize(BinaryBuffer& _src)
+void NamedSoundEffect::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1817,7 +1817,7 @@ void Particle::serialize(BinaryBuffer& _dst)
 	_dst.write(m_numberOfParticles);
 }
 
-void Particle::deserialize(BinaryBuffer& _src)
+void Particle::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1868,7 +1868,7 @@ void ChangeGameState::serialize(BinaryBuffer& _dst)
 	_dst.write(m_gameMode);
 }
 
-void ChangeGameState::deserialize(BinaryBuffer& _src)
+void ChangeGameState::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1904,7 +1904,7 @@ void SpawnGlobalEntity::serialize(BinaryBuffer& _dst)
 	_dst.write(m_z);
 }
 
-void SpawnGlobalEntity::deserialize(BinaryBuffer& _src)
+void SpawnGlobalEntity::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1951,7 +1951,7 @@ void OpenWindow::serialize(BinaryBuffer& _dst)
 	_dst.write(m_entityid);
 }
 
-void OpenWindow::deserialize(BinaryBuffer& _src)
+void OpenWindow::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -1991,7 +1991,7 @@ void CloseWindow::serialize(BinaryBuffer& _dst)
 	_dst.write(m_windowId);
 }
 
-void CloseWindow::deserialize(BinaryBuffer& _src)
+void CloseWindow::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2026,7 +2026,7 @@ void ClickWindow::serialize(BinaryBuffer& _dst)
 	m_clickedItem.serialize(_dst);
 }
 
-void ClickWindow::deserialize(BinaryBuffer& _src)
+void ClickWindow::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2070,7 +2070,7 @@ void SetSlot::serialize(BinaryBuffer& _dst)
 	m_slotData.serialize(_dst);
 }
 
-void SetSlot::deserialize(BinaryBuffer& _src)
+void SetSlot::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2106,7 +2106,7 @@ void SetWindowItems::serialize(BinaryBuffer& _dst)
 		itr->serialize(_dst);
 }
 
-void SetWindowItems::deserialize(BinaryBuffer& _src)
+void SetWindowItems::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2142,7 +2142,7 @@ void UpdateWindowProperty::serialize(BinaryBuffer& _dst)
 	_dst.write(m_value);
 }
 
-void UpdateWindowProperty::deserialize(BinaryBuffer& _src)
+void UpdateWindowProperty::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2177,7 +2177,7 @@ void ConfirmTransaction::serialize(BinaryBuffer& _dst)
 	_dst.write(m_accepted_qm);
 }
 
-void ConfirmTransaction::deserialize(BinaryBuffer& _src)
+void ConfirmTransaction::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2210,7 +2210,7 @@ void CreativeInventoryAction::serialize(BinaryBuffer& _dst)
 	m_clickedItem.serialize(_dst);
 }
 
-void CreativeInventoryAction::deserialize(BinaryBuffer& _src)
+void CreativeInventoryAction::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2240,7 +2240,7 @@ void EnchantItem::serialize(BinaryBuffer& _dst)
 	_dst.write(m_enchantment);
 }
 
-void EnchantItem::deserialize(BinaryBuffer& _src)
+void EnchantItem::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2280,7 +2280,7 @@ void UpdateSign::serialize(BinaryBuffer& _dst)
 	_dst.write(m_text4);
 }
 
-void UpdateSign::deserialize(BinaryBuffer& _src)
+void UpdateSign::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2329,7 +2329,7 @@ void ItemData::serialize(BinaryBuffer& _dst)
 	_dst.write(m_text);
 }
 
-void ItemData::deserialize(BinaryBuffer& _src)
+void ItemData::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2373,7 +2373,7 @@ void UpdateTileEntity::serialize(BinaryBuffer& _dst)
 	_dst.write(m_nbtData);
 }
 
-void UpdateTileEntity::deserialize(BinaryBuffer& _src)
+void UpdateTileEntity::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2419,7 +2419,7 @@ void TileEditorOpen_qm::serialize(BinaryBuffer& _dst)
 	_dst.write(m_z);
 }
 
-void TileEditorOpen_qm::deserialize(BinaryBuffer& _src)
+void TileEditorOpen_qm::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2455,7 +2455,7 @@ void IncrementStatistic::serialize(BinaryBuffer& _dst)
 	_dst.write(m_amount);
 }
 
-void IncrementStatistic::deserialize(BinaryBuffer& _src)
+void IncrementStatistic::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2487,7 +2487,7 @@ void PlayerListItem::serialize(BinaryBuffer& _dst)
 	_dst.write(m_ping);
 }
 
-void PlayerListItem::deserialize(BinaryBuffer& _src)
+void PlayerListItem::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2522,7 +2522,7 @@ void PlayerAbilities::serialize(BinaryBuffer& _dst)
 	_dst.write(m_walkingSpeed);
 }
 
-void PlayerAbilities::deserialize(BinaryBuffer& _src)
+void PlayerAbilities::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2553,7 +2553,7 @@ void TabComplete::serialize(BinaryBuffer& _dst)
 	_dst.write(m_text);
 }
 
-void TabComplete::deserialize(BinaryBuffer& _src)
+void TabComplete::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2586,7 +2586,7 @@ void ClientSettings::serialize(BinaryBuffer& _dst)
 	_dst.write(m_showCape);
 }
 
-void ClientSettings::deserialize(BinaryBuffer& _src)
+void ClientSettings::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2623,7 +2623,7 @@ void ClientStatuses::serialize(BinaryBuffer& _dst)
 	_dst.write(m_payload);
 }
 
-void ClientStatuses::deserialize(BinaryBuffer& _src)
+void ClientStatuses::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2652,7 +2652,7 @@ void ScoreboardObjective::serialize(BinaryBuffer& _dst)
 	_dst.write(m_createOrRemove);
 }
 
-void ScoreboardObjective::deserialize(BinaryBuffer& _src)
+void ScoreboardObjective::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2689,7 +2689,7 @@ void UpdateScore::serialize(BinaryBuffer& _dst)
 	_dst.write(m_value);
 }
 
-void UpdateScore::deserialize(BinaryBuffer& _src)
+void UpdateScore::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2725,7 +2725,7 @@ void DisplayScoreboard::serialize(BinaryBuffer& _dst)
 	_dst.write(m_scoreName);
 }
 
-void DisplayScoreboard::deserialize(BinaryBuffer& _src)
+void DisplayScoreboard::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2757,7 +2757,7 @@ void PluginMessage::serialize(BinaryBuffer& _dst)
 	_dst.write(m_data);
 }
 
-void PluginMessage::deserialize(BinaryBuffer& _src)
+void PluginMessage::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2794,7 +2794,7 @@ void EncryptionKeyResponse::serialize(BinaryBuffer& _dst)
 	_dst.write(m_verifyTokenResponse);
 }
 
-void EncryptionKeyResponse::deserialize(BinaryBuffer& _src)
+void EncryptionKeyResponse::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2836,7 +2836,7 @@ void EncryptionKeyRequest::serialize(BinaryBuffer& _dst)
 	_dst.write(m_verifyToken);
 }
 
-void EncryptionKeyRequest::deserialize(BinaryBuffer& _src)
+void EncryptionKeyRequest::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2873,7 +2873,7 @@ void ServerListPing::serialize(BinaryBuffer& _dst)
 	_dst.write(m_magic);
 }
 
-void ServerListPing::deserialize(BinaryBuffer& _src)
+void ServerListPing::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);
@@ -2898,7 +2898,7 @@ void DisconnectOrKick::serialize(BinaryBuffer& _dst)
 	_dst.write(m_reason);
 }
 
-void DisconnectOrKick::deserialize(BinaryBuffer& _src)
+void DisconnectOrKick::deserialize(const BinaryBuffer& _src)
 {
 	uint8_t code;
 	_src.read(code);

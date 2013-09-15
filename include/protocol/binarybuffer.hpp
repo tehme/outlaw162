@@ -25,14 +25,14 @@ public:
 	template<>					void write(const double& _src);
 	template<>					void write(const std::wstring& _src);	
 
-	template<class T>			void read(T& _dst);
-	template<class T>			void read(std::vector<T>& _dst, size_t _nElems);
-	template<>					void read(int8_t& _dst);
-	template<>					void read(uint8_t& _dst);
-	template<>					void read(bool& _dst);
-	template<>					void read(float& _dst);
-	template<>					void read(double& _dst);
-	template<>					void read(std::wstring& _dst);
+	template<class T>			void read(T& _dst) const;
+	template<class T>			void read(std::vector<T>& _dst, size_t _nElems) const;
+	template<>					void read(int8_t& _dst) const;
+	template<>					void read(uint8_t& _dst) const;
+	template<>					void read(bool& _dst) const;
+	template<>					void read(float& _dst) const;
+	template<>					void read(double& _dst) const;
+	template<>					void read(std::wstring& _dst) const;
 
 	void						addData(const std::vector<uint8_t>& _data);
 	void						removeDataUntil(size_t _offset);
@@ -56,7 +56,7 @@ public:
 
 private:
 	std::vector<uint8_t> m_data;
-	size_t m_offset;
+	mutable size_t m_offset;
 };
 
 //------------------------------------------------------------------------------
@@ -122,20 +122,20 @@ inline void BinaryBuffer::write(const std::wstring& _src)
 //--------------------------------
 
 template<class T>
-void BinaryBuffer::read(T& _dst)
+void BinaryBuffer::read(T& _dst) const
 {
 	// Message may arrive in parts.
 	if(m_offset + sizeof(T) > m_data.size())
 		throw PartialMessageException();
 
-	_dst = *reinterpret_cast<T*>(m_data.data() + m_offset);
+	_dst = *reinterpret_cast<const T*>(m_data.data() + m_offset);
 	boost::endian::big_to_native(_dst);
 
 	m_offset += sizeof(T);
 }
 
 template<class T>
-void BinaryBuffer::read(std::vector<T>& _dst, size_t _nElems)
+void BinaryBuffer::read(std::vector<T>& _dst, size_t _nElems) const
 {
 	if(m_offset + sizeof(T) * _nElems > m_data.size())
 		throw PartialMessageException();
@@ -147,7 +147,7 @@ void BinaryBuffer::read(std::vector<T>& _dst, size_t _nElems)
 }
 
 template<>
-inline void BinaryBuffer::read(int8_t& _dst)
+inline void BinaryBuffer::read(int8_t& _dst) const
 {
 	if(m_offset + 1 > m_data.size())
 		throw PartialMessageException();
@@ -158,7 +158,7 @@ inline void BinaryBuffer::read(int8_t& _dst)
 }
 
 template<>
-inline void BinaryBuffer::read(uint8_t& _dst)
+inline void BinaryBuffer::read(uint8_t& _dst) const
 {
 	if(m_offset + 1 > m_data.size())
 		throw PartialMessageException();
@@ -168,13 +168,13 @@ inline void BinaryBuffer::read(uint8_t& _dst)
 }
 
 template<>
-inline void BinaryBuffer::read(bool& _dst)
+inline void BinaryBuffer::read(bool& _dst) const
 {
 	read(reinterpret_cast<uint8_t&>(_dst));
 }
 
 template<>
-inline void BinaryBuffer::read(float& _dst)
+inline void BinaryBuffer::read(float& _dst) const
 {
 	uint32_t asInt;
 	read(asInt);
@@ -182,7 +182,7 @@ inline void BinaryBuffer::read(float& _dst)
 }
 
 template<>
-inline void BinaryBuffer::read(double& _dst)
+inline void BinaryBuffer::read(double& _dst) const
 {
 	uint64_t asInt;
 	read(asInt);
@@ -190,7 +190,7 @@ inline void BinaryBuffer::read(double& _dst)
 }
 
 template<>
-inline void BinaryBuffer::read(std::wstring& _dst)
+inline void BinaryBuffer::read(std::wstring& _dst) const
 {
 	uint16_t size;
 	read(size);

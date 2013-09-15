@@ -17,7 +17,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_keepAliveID() const;
@@ -39,7 +39,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -79,7 +79,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_protocolVersion() const;
@@ -110,7 +110,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int64_t& get_ageOfTheWorld() const;
@@ -135,7 +135,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -163,7 +163,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -191,7 +191,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_user() const;
@@ -219,7 +219,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const float& get_health() const;
@@ -247,7 +247,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_dimension() const;
@@ -281,7 +281,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const bool& get_onGround() const;
@@ -303,7 +303,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const double& get_x() const;
@@ -337,7 +337,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const float& get_yaw() const;
@@ -365,7 +365,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_status() const;
@@ -399,7 +399,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -442,7 +442,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int16_t& get_slotID() const;
@@ -464,7 +464,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -498,7 +498,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -523,7 +523,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -551,7 +551,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -597,7 +597,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_collectedEID() const;
@@ -622,7 +622,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -665,7 +665,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -720,7 +720,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -757,7 +757,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -791,7 +791,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const float& get_sideways() const;
@@ -822,7 +822,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -853,7 +853,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_entityCount() const;
@@ -878,7 +878,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -900,7 +900,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -931,7 +931,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -959,7 +959,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -996,7 +996,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -1033,7 +1033,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1058,7 +1058,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1083,7 +1083,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1111,7 +1111,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1136,7 +1136,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1167,7 +1167,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1192,7 +1192,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const float& get_experienceBar() const;
@@ -1220,7 +1220,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -1254,7 +1254,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -1291,7 +1291,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid_qm() const;
@@ -1325,7 +1325,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_effectID() const;
@@ -1362,7 +1362,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_soundName() const;
@@ -1399,7 +1399,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_particleName() const;
@@ -1445,7 +1445,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_reason() const;
@@ -1470,7 +1470,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1504,7 +1504,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1541,7 +1541,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1563,7 +1563,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1600,7 +1600,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1628,7 +1628,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1656,7 +1656,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1684,7 +1684,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1712,7 +1712,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int16_t& get_slot() const;
@@ -1737,7 +1737,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowID() const;
@@ -1762,7 +1762,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -1802,7 +1802,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int16_t& get_itemType() const;
@@ -1833,7 +1833,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -1870,7 +1870,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_tileEntityId() const;
@@ -1901,7 +1901,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_statisticID() const;
@@ -1926,7 +1926,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_playerName() const;
@@ -1954,7 +1954,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_flags() const;
@@ -1982,7 +1982,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_text() const;
@@ -2004,7 +2004,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_locale() const;
@@ -2038,7 +2038,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_payload() const;
@@ -2060,7 +2060,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_objectiveName() const;
@@ -2088,7 +2088,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_itemName() const;
@@ -2119,7 +2119,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_position() const;
@@ -2144,7 +2144,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_channel() const;
@@ -2172,7 +2172,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int16_t& get_sharedSecretLength() const;
@@ -2203,7 +2203,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_serverId() const;
@@ -2237,7 +2237,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_magic() const;
@@ -2259,7 +2259,7 @@ public:
 
 	virtual void serialize(BinaryBuffer& _dst);
 
-	virtual void deserialize(BinaryBuffer& _src);
+	virtual void deserialize(const BinaryBuffer& _src);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_reason() const;

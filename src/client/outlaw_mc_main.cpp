@@ -30,7 +30,7 @@
 struct ClientInfo; // forward hack
 
 //typedef std::function<size_t(const protocol::BinaryBuffer&, size_t, ClientInfo&)> MessageHandlerCallback;
-typedef std::function<void(protocol::BinaryBuffer&, ClientInfo&)> MessageHandlerCallback;
+typedef std::function<void(const protocol::BinaryBuffer&, ClientInfo&)> MessageHandlerCallback;
 
 struct ClientInfo
 {
@@ -75,7 +75,7 @@ enum UserEventCode
 
 // CALLBACKS, move
 
-void Handler_0x00_KeepAlive(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
+void Handler_0x00_KeepAlive(const protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	static int nKeeps = 0;
 	++nKeeps;
@@ -83,21 +83,21 @@ void Handler_0x00_KeepAlive(protocol::BinaryBuffer& _src, ClientInfo& _clientInf
 	return protocol::msg::KeepAlive().deserialize(_src);
 }
 
-void Handler_0x03_Chat(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
+void Handler_0x03_Chat(const protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::ChatMessage chatMsg;
 	chatMsg.deserialize(_src);
 	std::wcout << L"Chat message." << std::endl << chatMsg.get_jsonStr() << std::endl;
 }
 
-void Handler_0x06_SpawnPosition(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
+void Handler_0x06_SpawnPosition(const protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::SpawnPosition sp;
 	sp.deserialize(_src);
 	std::cout << "Spawn Position: " << sp.get_x() << " " << sp.get_y() << " " << sp.get_z() << std::endl;
 }
 
-void Handler_0x08_UpdateHealth(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
+void Handler_0x08_UpdateHealth(const protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::UpdateHealth tmp;
 	tmp.deserialize(_src);
@@ -110,7 +110,7 @@ void Handler_0x08_UpdateHealth(protocol::BinaryBuffer& _src, ClientInfo& _client
 	gui::api::FireEvent(_clientInfo.m_lstate, "EV_HEALTH_CHANGED", 2);
 }
 
-void Handler_0x0D_PlayerPositionAndLook(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
+void Handler_0x0D_PlayerPositionAndLook(const protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	if(!_clientInfo.m_initialPosGot)
 		_clientInfo.m_initialPosGot = true;
@@ -123,7 +123,7 @@ void Handler_0x0D_PlayerPositionAndLook(protocol::BinaryBuffer& _src, ClientInfo
 				<< _clientInfo.m_playerPosLook.get_z() << std::endl;
 }
 
-void Handler_0x35_BlockChange(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
+void Handler_0x35_BlockChange(const protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::BlockChange tmp;
 	tmp.deserialize(_src);
@@ -156,7 +156,7 @@ void Handler_0x35_BlockChange(protocol::BinaryBuffer& _src, ClientInfo& _clientI
 	std::cout << std::endl;
 }
 
-void Handler_0x38_MapChunkBulk(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
+void Handler_0x38_MapChunkBulk(const protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::MapChunkBulk tmp;
 	tmp.deserialize(_src);
@@ -173,14 +173,14 @@ void Handler_0x38_MapChunkBulk(protocol::BinaryBuffer& _src, ClientInfo& _client
 	}
 }
 
-void Handler_0x6A_ConfirmTransaction(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
+void Handler_0x6A_ConfirmTransaction(const protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::ConfirmTransaction tmp;
 	tmp.deserialize(_src);
 	std::cout << "Confirm Transaction works!" << std::endl;
 }
 
-void Handler_0xFF_DisconnectOrKick(protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
+void Handler_0xFF_DisconnectOrKick(const protocol::BinaryBuffer& _src, ClientInfo& _clientInfo)
 {
 	protocol::msg::DisconnectOrKick dok;
 	dok.deserialize(_src);
