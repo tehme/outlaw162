@@ -16,29 +16,37 @@ class BinaryBuffer
 public:
 	BinaryBuffer();
 
-	template<class T>	void write(const T& _src);
-	template<class T>	void write(const std::vector<T>& _src);
-	template<>			void write(const int8_t& _src);
-	template<>			void write(const uint8_t& _src);
-	template<>			void write(const bool& _src);
-	template<>			void write(const float& _src);
-	template<>			void write(const double& _src);
-	template<>			void write(const std::wstring& _src);	
+	template<class T>			void write(const T& _src);
+	template<class T>			void write(const std::vector<T>& _src);
+	template<>					void write(const int8_t& _src);
+	template<>					void write(const uint8_t& _src);
+	template<>					void write(const bool& _src);
+	template<>					void write(const float& _src);
+	template<>					void write(const double& _src);
+	template<>					void write(const std::wstring& _src);	
 
-	template<class T>	void read(T& _dst);
-	template<class T>	void read(std::vector<T>& _dst, size_t _nElems);
-	template<>			void read(int8_t& _dst);
-	template<>			void read(uint8_t& _dst);
-	template<>			void read(bool& _dst);
-	template<>			void read(float& _dst);
-	template<>			void read(double& _dst);
-	template<>			void read(std::wstring& _dst);
+	template<class T>			void read(T& _dst);
+	template<class T>			void read(std::vector<T>& _dst, size_t _nElems);
+	template<>					void read(int8_t& _dst);
+	template<>					void read(uint8_t& _dst);
+	template<>					void read(bool& _dst);
+	template<>					void read(float& _dst);
+	template<>					void read(double& _dst);
+	template<>					void read(std::wstring& _dst);
 
-	void	removeDataUntil(size_t _offset);
-	void	removeReadData();
+	void						removeDataUntil(size_t _offset);
+	void						removeReadData();
+	void						clear();
 
-	size_t	getOffset() const;
-	void	setOffset(size_t _val);
+	uint8_t						at(size_t _offset) const;
+	uint8_t						atOffset() const;
+	uint8_t						operator[](size_t _offset) const;
+
+	size_t						getOffset() const;
+	size_t						getSize() const;
+	const std::vector<uint8_t>&	getData() const;
+
+	void						setOffset(size_t _val);
 	
 	class PartialMessageException	{};
 	class OffsetOutOfRangeException	{};

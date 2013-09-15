@@ -314,6 +314,7 @@ private:
 
 
 // Struct with bit fields for 0x34.
+// 32 bits
 struct MultiBlockData
 {
 	int m_blockMetadata	: 4;
@@ -325,6 +326,7 @@ struct MultiBlockData
 
 // 0x34
 // Special class.
+// MultiBlockData may be bugged, check it.
 class MultiBlockChange : public BaseMessage
 {
 public:
@@ -344,7 +346,9 @@ public:
 		_dst.write(m_chunkZ);
 		_dst.write(m_recordCount);
 		_dst.write(m_dataSize);
-		_dst.write(m_data);
+		//_dst.write(m_data);
+		for(auto itr = m_data.begin(); itr != m_data.end(); ++itr)
+			_dst.write(reinterpret_cast<const uint32_t&>(*itr));
 	}
 
 	void deserialize(BinaryBuffer& _src)
@@ -357,7 +361,10 @@ public:
 		_src.read(m_chunkZ);
 		_src.read(m_recordCount);
 		_src.read(m_dataSize);
-		_src.read(m_data, m_dataSize / 4);
+		//_src.read(m_data, m_dataSize / 4);
+		m_data.resize(m_dataSize / 4);
+		for(auto itr = m_data.begin(); itr != m_data.end(); ++itr)
+			_src.read(reinterpret_cast<uint32_t&>(*itr));
 	}
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
@@ -429,7 +436,9 @@ public:
 		_dst.write(m_dataLength);
 		_dst.write(m_skyLightSent);
 		_dst.write(m_data);
-		_dst.write(m_metaInformation);
+		//_dst.write(m_metaInformation);
+		for(auto itr = m_metaInformation.begin(); itr != m_metaInformation.end(); ++itr)
+			itr->serialize(_dst);
 	}
 
 	void deserialize(BinaryBuffer& _src)
