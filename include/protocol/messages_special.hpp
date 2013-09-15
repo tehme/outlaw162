@@ -15,20 +15,18 @@ class ChatMessage : public BaseMessage
 public:
 	ChatMessage(){}
 
-	virtual void serialize(SimpleBinaryBuffer& _dst)
+	virtual void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_messageCode);
+		_dst.write(m_messageCode);
 	}
 
-	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
+	void deserialize(BinaryBuffer& _src)
 	{
 		int8_t code;
-		_offset = Deserialize(_src, code, _offset);
+		_src.read(code);
 		if(code != m_messageCode) throw WrongMessageException();
 
-		_offset = Deserialize(_src, m_jsonStr, _offset);
-
-		return _offset;
+		_src.read(m_jsonStr);
 	}
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
@@ -57,40 +55,37 @@ public:
 		,	m_onGround(_onGround)
 	{}
 
-	virtual void serialize(SimpleBinaryBuffer& _dst)
+	virtual void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_messageCode);
-		Serialize(_dst, m_x);
-		Serialize(_dst, m_y);
-		Serialize(_dst, m_stance);
-		Serialize(_dst, m_z);
-		Serialize(_dst, m_yaw);
-		Serialize(_dst, m_pitch);
-		Serialize(_dst, m_onGround);
+		_dst.write(m_messageCode);
+		_dst.write(m_x);
+		_dst.write(m_y);
+		_dst.write(m_stance);
+		_dst.write(m_z);
+		_dst.write(m_yaw);
+		_dst.write(m_pitch);
+		_dst.write(m_onGround);
 	}
 
-	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
+	void deserialize(BinaryBuffer& _src)
 	{
 		uint8_t code;
-		_offset = Deserialize(_src, code, _offset);
+		_src.read(code);
 		if(code != m_messageCode) throw WrongMessageException();
 
-		_offset = Deserialize(_src, m_x, _offset);
-		_offset = Deserialize(_src, m_stance, _offset);
-		_offset = Deserialize(_src, m_y, _offset);		
-		_offset = Deserialize(_src, m_z, _offset);
-		_offset = Deserialize(_src, m_yaw, _offset);
-		_offset = Deserialize(_src, m_pitch, _offset);
-		_offset = Deserialize(_src, m_onGround, _offset);
-
-		return _offset;
+		_src.read(m_x);
+		_src.read(m_stance);
+		_src.read(m_y);		
+		_src.read(m_z);
+		_src.read(m_yaw);
+		_src.read(m_pitch);
+		_src.read(m_onGround);
 	}
 
-	virtual size_t deserialize_cts(const SimpleBinaryBuffer& _src, size_t _offset = 0)
+	void deserialize_cts(BinaryBuffer& _src)
 	{
-		_offset = deserialize(_src, _offset);
+		deserialize(_src);
 		std::swap(m_stance, m_y);
-		return _offset;
 	}
 
 
@@ -130,22 +125,20 @@ struct ModifierData
 	double m_amount;
 	int8_t m_operation;
 
-	void serialize(SimpleBinaryBuffer& _dst)
+	void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_uuidMsb);
-		Serialize(_dst, m_uuidLsb);
-		Serialize(_dst, m_amount);
-		Serialize(_dst, m_operation);
+		_dst.write(m_uuidMsb);
+		_dst.write(m_uuidLsb);
+		_dst.write(m_amount);
+		_dst.write(m_operation);
 	}
 
-	size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
+	void deserialize(BinaryBuffer& _src)
 	{
-		_offset = Deserialize(_src, m_uuidMsb, _offset);
-		_offset = Deserialize(_src, m_uuidLsb, _offset);
-		_offset = Deserialize(_src, m_amount, _offset);
-		_offset = Deserialize(_src, m_operation, _offset);
-
-		return _offset;
+		_src.read(m_uuidMsb);
+		_src.read(m_uuidLsb);
+		_src.read(m_amount);
+		_src.read(m_operation);
 	}
 };
 
@@ -161,25 +154,23 @@ public:
 		,	m_modifiers(_modifiers)
 	{}
 
-	virtual void serialize(SimpleBinaryBuffer& _dst)
+	virtual void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_key);
-		Serialize(_dst, m_value);
-		Serialize(_dst, m_modifiersCount);
+		_dst.write(m_key);
+		_dst.write(m_value);
+		_dst.write(m_modifiersCount);
 		for(auto itr = m_modifiers.begin(); itr != m_modifiers.end(); ++itr)
 			itr->serialize(_dst);
 	}
 
-	size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
+	void deserialize(BinaryBuffer& _src)
 	{
-		_offset = Deserialize(_src, m_key, _offset);
-		_offset = Deserialize(_src, m_value, _offset);
-		_offset = Deserialize(_src, m_modifiersCount, _offset);
+		_src.read(m_key);
+		_src.read(m_value);
+		_src.read(m_modifiersCount);
 		m_modifiers.resize(m_modifiersCount);
 		for(auto itr = m_modifiers.begin(); itr != m_modifiers.end(); ++itr)
-			_offset = itr->deserialize(_src, _offset);
-
-		return _offset;
+			itr->deserialize(_src);
 	}
 
 	const std::wstring& get_key() const	{ return m_key; }
@@ -211,28 +202,26 @@ public:
 		,	m_properties(_properties)
 	{}
 
-	virtual void serialize(SimpleBinaryBuffer& _dst)
+	virtual void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_messageCode);
-		Serialize(_dst, m_entityid);
-		Serialize(_dst, m_propertiesCount);
+		_dst.write(m_messageCode);
+		_dst.write(m_entityid);
+		_dst.write(m_propertiesCount);
 		for(auto itr = m_properties.begin(); itr != m_properties.end(); ++itr)
 			itr->serialize(_dst);
 	}
 
-	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
+	void deserialize(BinaryBuffer& _src)
 	{
 		uint8_t code;
-		_offset = Deserialize(_src, code, _offset);
+		_src.read(code);
 		if(code != m_messageCode) throw WrongMessageException();
 
-		_offset = Deserialize(_src, m_entityid, _offset);
-		_offset = Deserialize(_src, m_propertiesCount, _offset);
+		_src.read(m_entityid);
+		_src.read(m_propertiesCount);
 		m_properties.resize(m_propertiesCount);
 		for(auto itr = m_properties.begin(); itr != m_properties.end(); ++itr)
-			_offset = itr->deserialize(_src, _offset);
-
-		return _offset;
+			itr->deserialize(_src);
 	}
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
@@ -268,33 +257,31 @@ public:
 		,	m_compressedData(_compressedData)
 	{}
 
-	virtual void serialize(SimpleBinaryBuffer& _dst)
+	virtual void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_messageCode);
-		Serialize(_dst, m_x);
-		Serialize(_dst, m_z);
-		Serialize(_dst, m_groundUpContinuous);
-		Serialize(_dst, m_primaryBitMap);
-		Serialize(_dst, m_addBitMap);
-		Serialize(_dst, m_compressedSize);
-		Serialize(_dst, m_compressedData);
+		_dst.write(m_messageCode);
+		_dst.write(m_x);
+		_dst.write(m_z);
+		_dst.write(m_groundUpContinuous);
+		_dst.write(m_primaryBitMap);
+		_dst.write(m_addBitMap);
+		_dst.write(m_compressedSize);
+		_dst.write(m_compressedData);
 	}
 
-	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
+	virtual void deserialize(BinaryBuffer& _src)
 	{
 		int8_t code;
-		_offset = Deserialize(_src, code, _offset);
+		_src.read(code);
 		if(code != m_messageCode) throw WrongMessageException();
 
-		_offset = Deserialize(_src, m_x, _offset);
-		_offset = Deserialize(_src, m_z, _offset);
-		_offset = Deserialize(_src, m_groundUpContinuous, _offset);
-		_offset = Deserialize(_src, m_primaryBitMap, _offset);
-		_offset = Deserialize(_src, m_addBitMap, _offset);
-		_offset = Deserialize(_src, m_compressedSize, _offset);
-		_offset = Deserialize(_src, m_compressedData, _offset, m_compressedSize);
-
-		return _offset;
+		_src.read(m_x);
+		_src.read(m_z);
+		_src.read(m_groundUpContinuous);
+		_src.read(m_primaryBitMap);
+		_src.read(m_addBitMap);
+		_src.read(m_compressedSize);
+		_src.read(m_compressedData, m_compressedSize);
 	}
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
@@ -350,29 +337,27 @@ public:
 		,	m_data(_data)
 	{}
 
-	virtual void serialize(SimpleBinaryBuffer& _dst)
+	virtual void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_messageCode);
-		Serialize(_dst, m_chunkX);
-		Serialize(_dst, m_chunkZ);
-		Serialize(_dst, m_recordCount);
-		Serialize(_dst, m_dataSize);
-		Serialize(_dst, m_data);
+		_dst.write(m_messageCode);
+		_dst.write(m_chunkX);
+		_dst.write(m_chunkZ);
+		_dst.write(m_recordCount);
+		_dst.write(m_dataSize);
+		_dst.write(m_data);
 	}
 
-	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
+	void deserialize(BinaryBuffer& _src)
 	{
 		int8_t code;
-		_offset = Deserialize(_src, code, _offset);
+		_src.read(code);
 		if(code != m_messageCode) throw WrongMessageException();
 
-		_offset = Deserialize(_src, m_chunkX, _offset);
-		_offset = Deserialize(_src, m_chunkZ, _offset);
-		_offset = Deserialize(_src, m_recordCount, _offset);
-		_offset = Deserialize(_src, m_dataSize, _offset);
-		_offset = Deserialize(_src, m_data, _offset, m_dataSize / 4);
-
-		return _offset;
+		_src.read(m_chunkX);
+		_src.read(m_chunkZ);
+		_src.read(m_recordCount);
+		_src.read(m_dataSize);
+		_src.read(m_data, m_dataSize / 4);
 	}
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
@@ -405,22 +390,20 @@ struct ChunkMetaInfo
 	uint16_t m_primaryBitmap; 
 	uint16_t m_addBitmap;
 
-	void serialize(SimpleBinaryBuffer& _dst)
+	void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_chunkX);
-		Serialize(_dst, m_chunkZ);
-		Serialize(_dst, m_primaryBitmap);
-		Serialize(_dst, m_addBitmap);
+		_dst.write(m_chunkX);
+		_dst.write(m_chunkZ);
+		_dst.write(m_primaryBitmap);
+		_dst.write(m_addBitmap);
 	}
 
-	size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
+	void deserialize(BinaryBuffer& _src)
 	{
-		_offset = Deserialize(_src, m_chunkX, _offset);
-		_offset = Deserialize(_src, m_chunkZ, _offset);
-		_offset = Deserialize(_src, m_primaryBitmap, _offset);
-		_offset = Deserialize(_src, m_addBitmap, _offset);
-
-		return _offset;
+		_src.read(m_chunkX);
+		_src.read(m_chunkZ);
+		_src.read(m_primaryBitmap);
+		_src.read(m_addBitmap);
 	}
 
 };
@@ -439,31 +422,29 @@ public:
 		,	m_metaInformation(_metaInformation)
 	{}
 
-	virtual void serialize(SimpleBinaryBuffer& _dst)
+	virtual void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_messageCode);
-		Serialize(_dst, m_chunkColumnCount);
-		Serialize(_dst, m_dataLength);
-		Serialize(_dst, m_skyLightSent);
-		Serialize(_dst, m_data);
-		Serialize(_dst, m_metaInformation);
+		_dst.write(m_messageCode);
+		_dst.write(m_chunkColumnCount);
+		_dst.write(m_dataLength);
+		_dst.write(m_skyLightSent);
+		_dst.write(m_data);
+		_dst.write(m_metaInformation);
 	}
 
-	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
+	void deserialize(BinaryBuffer& _src)
 	{
 		int8_t code;
-		_offset = Deserialize(_src, code, _offset);
+		_src.read(code);
 		if(code != m_messageCode) throw WrongMessageException();
 
-		_offset = Deserialize(_src, m_chunkColumnCount, _offset);
-		_offset = Deserialize(_src, m_dataLength, _offset);
-		_offset = Deserialize(_src, m_skyLightSent, _offset);
-		_offset = Deserialize(_src, m_data, _offset, m_dataLength);
+		_src.read(m_chunkColumnCount);
+		_src.read(m_dataLength);
+		_src.read(m_skyLightSent);
+		_src.read(m_data, m_dataLength);
 		m_metaInformation.resize(m_chunkColumnCount);
 		for(auto itr = m_metaInformation.begin(); itr != m_metaInformation.end(); ++itr)
-			_offset = itr->deserialize(_src, _offset);
-
-		return _offset;
+			itr->deserialize(_src);
 	}
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
@@ -506,40 +487,38 @@ public:
 		,	m_playerMotionZ(_playerMotionZ)
 	{}
 
-	virtual void serialize(SimpleBinaryBuffer& _dst)
+	virtual void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_messageCode);
-		Serialize(_dst, m_x);
-		Serialize(_dst, m_y);
-		Serialize(_dst, m_z);
-		Serialize(_dst, m_radius);
-		Serialize(_dst, m_recordCount);
+		_dst.write(m_messageCode);
+		_dst.write(m_x);
+		_dst.write(m_y);
+		_dst.write(m_z);
+		_dst.write(m_radius);
+		_dst.write(m_recordCount);
 		for(auto itr = m_records.begin(); itr != m_records.end(); ++itr)
 			itr->serialize(_dst);
-		Serialize(_dst, m_playerMotionX);
-		Serialize(_dst, m_playerMotionY);
-		Serialize(_dst, m_playerMotionZ);
+		_dst.write(m_playerMotionX);
+		_dst.write(m_playerMotionY);
+		_dst.write(m_playerMotionZ);
 	}
 
-	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
+	virtual void deserialize(BinaryBuffer& _src)
 	{
 		int8_t code;
-		_offset = Deserialize(_src, code, _offset);
+		_src.read(code);
 		if(code != m_messageCode) throw WrongMessageException();
 
-		_offset = Deserialize(_src, m_x, _offset);
-		_offset = Deserialize(_src, m_y, _offset);
-		_offset = Deserialize(_src, m_z, _offset);
-		_offset = Deserialize(_src, m_radius, _offset);
-		_offset = Deserialize(_src, m_recordCount, _offset);
+		_src.read(m_x);
+		_src.read(m_y);
+		_src.read(m_z);
+		_src.read(m_radius);
+		_src.read(m_recordCount);
 		m_records.resize(m_recordCount);
 		for(auto itr = m_records.begin(); itr != m_records.end(); ++itr)
-			_offset = itr->deserialize(_src, _offset);
-		_offset = Deserialize(_src, m_playerMotionX, _offset);
-		_offset = Deserialize(_src, m_playerMotionY, _offset);
-		_offset = Deserialize(_src, m_playerMotionZ, _offset);
-
-		return _offset;
+			itr->deserialize(_src);
+		_src.read(m_playerMotionX);
+		_src.read(m_playerMotionY);
+		_src.read(m_playerMotionZ);
 	}
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
@@ -593,51 +572,49 @@ public:
 		,	m_players(_players)
 	{}
 
-	virtual void serialize(SimpleBinaryBuffer& _dst)
+	virtual void serialize(BinaryBuffer& _dst)
 	{
-		Serialize(_dst, m_messageCode);
-		Serialize(_dst, m_teamName);
-		Serialize(_dst, m_mode);
+		_dst.write(m_messageCode);
+		_dst.write(m_teamName);
+		_dst.write(m_mode);
 
 		if(m_mode == 0 || m_mode == 2)
 		{
-			Serialize(_dst, m_teamDisplayName);
-			Serialize(_dst, m_teamPrefix);
-			Serialize(_dst, m_teamSuffix);
-			Serialize(_dst, m_friendlyFire);
+			_dst.write(m_teamDisplayName);
+			_dst.write(m_teamPrefix);
+			_dst.write(m_teamSuffix);
+			_dst.write(m_friendlyFire);
 		}
 
 		if(m_mode == 0 || m_mode == 3 || m_mode == 4)
 		{
-			Serialize(_dst, m_playerCount);
-			Serialize(_dst, m_players);
+			_dst.write(m_playerCount);
+			_dst.write(m_players);
 		}
 	}
 
-	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
+	void deserialize(BinaryBuffer& _src)
 	{
 		int8_t code;
-		_offset = Deserialize(_src, code, _offset);
+		_src.read(code);
 		if(code != m_messageCode) throw WrongMessageException();
 
-		_offset = Deserialize(_src, m_teamName, _offset);
-		_offset = Deserialize(_src, m_mode, _offset);
+		_src.read(m_teamName);
+		_src.read(m_mode);
 
 		if(m_mode == 0 || m_mode == 2)
 		{
-			_offset = Deserialize(_src, m_teamDisplayName, _offset);
-			_offset = Deserialize(_src, m_teamPrefix, _offset);
-			_offset = Deserialize(_src, m_teamSuffix, _offset);
-			_offset = Deserialize(_src, m_friendlyFire, _offset);
+			_src.read(m_teamDisplayName);
+			_src.read(m_teamPrefix);
+			_src.read(m_teamSuffix);
+			_src.read(m_friendlyFire);
 		}
 
 		if(m_mode == 0 || m_mode == 3 || m_mode == 4)
 		{
-			_offset = Deserialize(_src, m_playerCount, _offset);
-			_offset = Deserialize(_src, m_players, _offset, m_playerCount);
+			_src.read(m_playerCount);
+			_src.read(m_players, m_playerCount);
 		}
-
-		return _offset;
 	}
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }

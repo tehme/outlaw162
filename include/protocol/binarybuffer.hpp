@@ -16,21 +16,23 @@ class BinaryBuffer
 public:
 	BinaryBuffer();
 
-	template<class T>	void serialize(const T& _src);
-	template<class T>	void serialize(const std::vector<T>& _src);
-	template<>			void serialize(const int8_t& _src);
-	template<>			void serialize(const uint8_t& _src);
-	template<>			void serialize(const float& _src);
-	template<>			void serialize(const double& _src);
-	template<>			void serialize(const std::wstring& _src);	
+	template<class T>	void write(const T& _src);
+	template<class T>	void write(const std::vector<T>& _src);
+	template<>			void write(const int8_t& _src);
+	template<>			void write(const uint8_t& _src);
+	template<>			void write(const bool& _src);
+	template<>			void write(const float& _src);
+	template<>			void write(const double& _src);
+	template<>			void write(const std::wstring& _src);	
 
-	template<class T>	void deserialize(T& _dst);
-	template<class T>	void deserialize(std::vector<T>& _dst, size_t _nElems);
-	template<>			void deserialize(int8_t& _dst);
-	template<>			void deserialize(uint8_t& _dst);
-	template<>			void deserialize(float& _dst);
-	template<>			void deserialize(double& _dst);
-	template<>			void deserialize(std::wstring& _dst);
+	template<class T>	void read(T& _dst);
+	template<class T>	void read(std::vector<T>& _dst, size_t _nElems);
+	template<>			void read(int8_t& _dst);
+	template<>			void read(uint8_t& _dst);
+	template<>			void read(bool& _dst);
+	template<>			void read(float& _dst);
+	template<>			void read(double& _dst);
+	template<>			void read(std::wstring& _dst);
 
 	void	removeDataUntil(size_t _offset);
 	void	removeReadData();
@@ -49,7 +51,7 @@ private:
 //------------------------------------------------------------------------------
 
 template<class T>
-void BinaryBuffer::serialize(const T& _src)
+void BinaryBuffer::write(const T& _src)
 {
 	T val;
 	boost::endian::native_to_big(_src, val);
@@ -58,52 +60,58 @@ void BinaryBuffer::serialize(const T& _src)
 }
 
 template<class T>
-void BinaryBuffer::serialize(const std::vector<T>& _src)
+void BinaryBuffer::write(const std::vector<T>& _src)
 {
 	for(auto itr = _src.begin(); itr != _src.end(); ++itr)
-		serialize(*itr);
+		write(*itr);
 }
 
 template<>
-inline void BinaryBuffer::serialize(const int8_t& _src)
+inline void BinaryBuffer::write(const int8_t& _src)
 {
 	m_data.push_back(_src);
 }
 
 template<>
-inline void BinaryBuffer::serialize(const uint8_t& _src)
+inline void BinaryBuffer::write(const uint8_t& _src)
 {
 	m_data.push_back(_src);
 }
 
 template<>
-inline void BinaryBuffer::serialize(const float& _src)
+inline void BinaryBuffer::write(const bool& _src)
+{
+	m_data.push_back(_src);
+}
+
+template<>
+inline void BinaryBuffer::write(const float& _src)
 {
 	const uint32_t& asInt = reinterpret_cast<const uint32_t&>(_src);
-	serialize(asInt);
+	write(asInt);
 }
 
 template<>
-inline void BinaryBuffer::serialize(const double& _src)
+inline void BinaryBuffer::write(const double& _src)
 {
 	const uint64_t& asInt = reinterpret_cast<const uint64_t&>(_src);
-	serialize(asInt);
+	write(asInt);
 }
 
 template<>
-inline void BinaryBuffer::serialize(const std::wstring& _src)
+inline void BinaryBuffer::write(const std::wstring& _src)
 {
 	int16_t len = _src.size();
-	serialize(len);
+	write(len);
 
 	for(auto itr = _src.begin(); itr != _src.end(); ++itr)
-		serialize(reinterpret_cast<const uint16_t&>(*itr));
+		write(reinterpret_cast<const uint16_t&>(*itr));
 }
 
 //--------------------------------
 
 template<class T>
-void BinaryBuffer::deserialize(T& _dst)
+void BinaryBuffer::read(T& _dst)
 {
 	// Message may arrive in parts.
 	if(m_offset + sizeof(T) > m_data.size())
@@ -116,7 +124,7 @@ void BinaryBuffer::deserialize(T& _dst)
 }
 
 template<class T>
-void BinaryBuffer::deserialize(std::vector<T>& _dst, size_t _nElems)
+void BinaryBuffer::read(std::vector<T>& _dst, size_t _nElems)
 {
 	if(m_offset + sizeof(T) * _nElems > m_data.size())
 		throw PartialMessageException();
@@ -124,11 +132,11 @@ void BinaryBuffer::deserialize(std::vector<T>& _dst, size_t _nElems)
 	_dst.clear();
 	_dst.resize(_nElems);
 	for(auto itr = _dst.begin(); itr != _dst.end(); ++itr)
-		deserialize(*itr);
+		read(*itr);
 }
 
 template<>
-inline void BinaryBuffer::deserialize(int8_t& _dst)
+inline void BinaryBuffer::read(int8_t& _dst)
 {
 	if(m_offset + 1 > m_data.size())
 		throw PartialMessageException();
@@ -139,7 +147,7 @@ inline void BinaryBuffer::deserialize(int8_t& _dst)
 }
 
 template<>
-inline void BinaryBuffer::deserialize(uint8_t& _dst)
+inline void BinaryBuffer::read(uint8_t& _dst)
 {
 	if(m_offset + 1 > m_data.size())
 		throw PartialMessageException();
@@ -149,26 +157,32 @@ inline void BinaryBuffer::deserialize(uint8_t& _dst)
 }
 
 template<>
-inline void BinaryBuffer::deserialize(float& _dst)
+inline void BinaryBuffer::read(bool& _dst)
+{
+	read(reinterpret_cast<uint8_t&>(_dst));
+}
+
+template<>
+inline void BinaryBuffer::read(float& _dst)
 {
 	uint32_t asInt;
-	deserialize(asInt);
+	read(asInt);
 	_dst = reinterpret_cast<float&>(asInt);
 }
 
 template<>
-inline void BinaryBuffer::deserialize(double& _dst)
+inline void BinaryBuffer::read(double& _dst)
 {
 	uint64_t asInt;
-	deserialize(asInt);
+	read(asInt);
 	_dst = reinterpret_cast<double&>(asInt);
 }
 
 template<>
-inline void BinaryBuffer::deserialize(std::wstring& _dst)
+inline void BinaryBuffer::read(std::wstring& _dst)
 {
 	uint16_t size;
-	deserialize(size);
+	read(size);
 
 	if(m_offset + size * sizeof(int16_t) > m_data.size())
 		throw PartialMessageException();
@@ -178,7 +192,7 @@ inline void BinaryBuffer::deserialize(std::wstring& _dst)
 	for(auto itr = _dst.begin(); itr != _dst.end(); ++itr)
 	{
 		// endian_conversion can't convert wchar_t; bad
-		deserialize(reinterpret_cast<uint16_t&>(*itr));
+		read(reinterpret_cast<uint16_t&>(*itr));
 	}
 }
 
