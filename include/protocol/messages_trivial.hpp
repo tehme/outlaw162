@@ -14,9 +14,9 @@ public:
 	KeepAlive(){}
 	KeepAlive(const int32_t& _keepAliveID);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_keepAliveID() const;
@@ -36,9 +36,9 @@ public:
 	LoginRequest(){}
 	LoginRequest(const int32_t& _entityID, const std::wstring& _levelType, const int8_t& _gameMode, const int8_t& _dimension, const int8_t& _difficulty, const int8_t& _notUsed, const int8_t& _maxPlayers);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -76,9 +76,9 @@ public:
 	Handshake(){}
 	Handshake(const int8_t& _protocolVersion, const std::wstring& _username, const std::wstring& _serverHost, const int32_t& _serverPort);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_protocolVersion() const;
@@ -107,9 +107,9 @@ public:
 	TimeUpdate(){}
 	TimeUpdate(const int64_t& _ageOfTheWorld, const int64_t& _timeOfDay);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int64_t& get_ageOfTheWorld() const;
@@ -132,9 +132,9 @@ public:
 	EntityEquipment(){}
 	EntityEquipment(const int32_t& _entityID, const int16_t& _slot, const SlotData& _item);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -160,9 +160,9 @@ public:
 	SpawnPosition(){}
 	SpawnPosition(const int32_t& _x, const int32_t& _y, const int32_t& _z);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -188,9 +188,9 @@ public:
 	UseEntity(){}
 	UseEntity(const int32_t& _user, const int32_t& _target, const bool& _mouseButton);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_user() const;
@@ -216,9 +216,9 @@ public:
 	UpdateHealth(){}
 	UpdateHealth(const float& _health, const int16_t& _food, const float& _foodSaturation);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const float& get_health() const;
@@ -244,9 +244,9 @@ public:
 	Respawn(){}
 	Respawn(const int32_t& _dimension, const int8_t& _difficulty, const int8_t& _gameMode, const int16_t& _worldHeight, const std::wstring& _levelType);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_dimension() const;
@@ -278,9 +278,9 @@ public:
 	Player(){}
 	Player(const bool& _onGround);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const bool& get_onGround() const;
@@ -300,9 +300,9 @@ public:
 	PlayerPosition(){}
 	PlayerPosition(const double& _x, const double& _y, const double& _stance, const double& _z, const bool& _onGround);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const double& get_x() const;
@@ -334,9 +334,9 @@ public:
 	PlayerLook(){}
 	PlayerLook(const float& _yaw, const float& _pitch, const bool& _onGround);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const float& get_yaw() const;
@@ -362,9 +362,9 @@ public:
 	PlayerDigging(){}
 	PlayerDigging(const int8_t& _status, const int32_t& _x, const int8_t& _y, const int32_t& _z, const int8_t& _face);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_status() const;
@@ -396,9 +396,9 @@ public:
 	PlayerBlockPlacement(){}
 	PlayerBlockPlacement(const int32_t& _x, const uint8_t& _y, const int32_t& _z, const int8_t& _direction, const SlotData& _heldItem, const int8_t& _cursorPositionX, const int8_t& _cursorPositionY, const int8_t& _cursorPositionZ);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -439,9 +439,9 @@ public:
 	HeldItemChange(){}
 	HeldItemChange(const int16_t& _slotID);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int16_t& get_slotID() const;
@@ -461,9 +461,9 @@ public:
 	UseBed(){}
 	UseBed(const int32_t& _entityID, const int8_t& _unknown, const int32_t& _bedX, const int8_t& _bedY, const int32_t& _bedZ);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -495,9 +495,9 @@ public:
 	Animation(){}
 	Animation(const int32_t& _eid, const int8_t& _animation);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -520,9 +520,9 @@ public:
 	EntityAction(){}
 	EntityAction(const int32_t& _eid, const int8_t& _actionID, const int32_t& _jumpboost);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -548,9 +548,9 @@ public:
 	SpawnNamedEntity(){}
 	SpawnNamedEntity(const int32_t& _eid, const std::wstring& _playerName, const int32_t& _x, const int32_t& _y, const int32_t& _z, const int8_t& _yaw, const int8_t& _pitch, const int16_t& _currentItem, const Metadata& _metadata);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -594,9 +594,9 @@ public:
 	CollectItem(){}
 	CollectItem(const int32_t& _collectedEID, const int32_t& _collectorEID);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_collectedEID() const;
@@ -619,9 +619,9 @@ public:
 	SpawnObjectOrVehicle(){}
 	SpawnObjectOrVehicle(const int32_t& _eid, const int8_t& _type, const int32_t& _x, const int32_t& _y, const int32_t& _z, const int8_t& _pitch, const int8_t& _yaw, const ObjectData& _objectData);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -662,9 +662,9 @@ public:
 	SpawnMob(){}
 	SpawnMob(const int32_t& _eid, const int8_t& _type, const int32_t& _x, const int32_t& _y, const int32_t& _z, const int8_t& _pitch, const int8_t& _headPitch, const int8_t& _yaw, const int16_t& _velocityX, const int16_t& _velocityY, const int16_t& _velocityZ, const Metadata& _metadata);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -717,9 +717,9 @@ public:
 	SpawnPainting(){}
 	SpawnPainting(const int32_t& _entityID, const std::wstring& _title, const int32_t& _x, const int32_t& _y, const int32_t& _z, const int32_t& _direction);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -754,9 +754,9 @@ public:
 	SpawnExperienceOrb(){}
 	SpawnExperienceOrb(const int32_t& _entityID, const int32_t& _x, const int32_t& _y, const int32_t& _z, const int16_t& _count);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -788,9 +788,9 @@ public:
 	SteerVehicle(){}
 	SteerVehicle(const float& _sideways, const float& _forward, const bool& _jump, const bool& _unmount);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const float& get_sideways() const;
@@ -819,9 +819,9 @@ public:
 	EntityVelocity(){}
 	EntityVelocity(const int32_t& _entityID, const int16_t& _velocityX, const int16_t& _velocityY, const int16_t& _velocityZ);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -850,9 +850,9 @@ public:
 	DestroyEntity(){}
 	DestroyEntity(const int8_t& _entityCount, const std::vector<int32_t>& _entityIDs);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_entityCount() const;
@@ -875,9 +875,9 @@ public:
 	Entity(){}
 	Entity(const int32_t& _eid);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -897,9 +897,9 @@ public:
 	EntityRelativeMove(){}
 	EntityRelativeMove(const int32_t& _eid, const int8_t& _dx, const int8_t& _dy, const int8_t& _dz);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -928,9 +928,9 @@ public:
 	EntityLook(){}
 	EntityLook(const int32_t& _eid, const int8_t& _yaw, const int8_t& _pitch);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -956,9 +956,9 @@ public:
 	EntityLookAndRelativeMove(){}
 	EntityLookAndRelativeMove(const int32_t& _eid, const int8_t& _dx, const int8_t& _dy, const int8_t& _dz, const int8_t& _yaw, const int8_t& _pitch);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -993,9 +993,9 @@ public:
 	EntityTeleport(){}
 	EntityTeleport(const int32_t& _eid, const int32_t& _x, const int32_t& _y, const int32_t& _z, const int8_t& _yaw, const int8_t& _pitch);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid() const;
@@ -1030,9 +1030,9 @@ public:
 	EntityHeadLook(){}
 	EntityHeadLook(const int32_t& _entityID, const int8_t& _headYaw);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1055,9 +1055,9 @@ public:
 	EntityStatus(){}
 	EntityStatus(const int32_t& _entityID, const int8_t& _entityStatus);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1080,9 +1080,9 @@ public:
 	AttachEntity(){}
 	AttachEntity(const int32_t& _entityID, const int32_t& _vehicleID, const uint8_t& _leash);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1108,9 +1108,9 @@ public:
 	EntityMetadata(){}
 	EntityMetadata(const int32_t& _entityID, const Metadata& _entityMetadata);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1133,9 +1133,9 @@ public:
 	EntityEffect(){}
 	EntityEffect(const int32_t& _entityID, const int8_t& _effectID, const int8_t& _amplifier, const int16_t& _duration);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1164,9 +1164,9 @@ public:
 	RemoveEntityEffect(){}
 	RemoveEntityEffect(const int32_t& _entityID, const int8_t& _effectID);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1189,9 +1189,9 @@ public:
 	SetExperience(){}
 	SetExperience(const float& _experienceBar, const int16_t& _level, const int16_t& _totalExperience);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const float& get_experienceBar() const;
@@ -1217,9 +1217,9 @@ public:
 	BlockChange(){}
 	BlockChange(const int32_t& _x, const int8_t& _y, const int32_t& _z, const int16_t& _blockType, const int8_t& _blockMetadata);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -1251,9 +1251,9 @@ public:
 	BlockAction(){}
 	BlockAction(const int32_t& _x, const int16_t& _y, const int32_t& _z, const int8_t& _byte1, const int8_t& _byte2, const int16_t& _blockID);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -1288,9 +1288,9 @@ public:
 	BlockBreakAnimation(){}
 	BlockBreakAnimation(const int32_t& _eid_qm, const int32_t& _x, const int32_t& _y, const int32_t& _z, const int8_t& _destroyStage);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_eid_qm() const;
@@ -1322,9 +1322,9 @@ public:
 	SoundOrParticleEffect(){}
 	SoundOrParticleEffect(const int32_t& _effectID, const int32_t& _x, const int8_t& _y, const int32_t& _z, const int32_t& _data, const bool& _disableRelativeVolume);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_effectID() const;
@@ -1359,9 +1359,9 @@ public:
 	NamedSoundEffect(){}
 	NamedSoundEffect(const std::wstring& _soundName, const int32_t& _effectPositionX, const int32_t& _effectPositionY, const int32_t& _effectPositionZ, const float& _volume, const int8_t& _pitch);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_soundName() const;
@@ -1396,9 +1396,9 @@ public:
 	Particle(){}
 	Particle(const std::wstring& _particleName, const float& _x, const float& _y, const float& _z, const float& _offsetX, const float& _offsetY, const float& _offsetZ, const float& _particleSpeed, const int32_t& _numberOfParticles);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_particleName() const;
@@ -1442,9 +1442,9 @@ public:
 	ChangeGameState(){}
 	ChangeGameState(const int8_t& _reason, const int8_t& _gameMode);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_reason() const;
@@ -1467,9 +1467,9 @@ public:
 	SpawnGlobalEntity(){}
 	SpawnGlobalEntity(const int32_t& _entityID, const int8_t& _type, const int32_t& _x, const int32_t& _y, const int32_t& _z);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_entityID() const;
@@ -1501,9 +1501,9 @@ public:
 	OpenWindow(){}
 	OpenWindow(const int8_t& _windowId, const int8_t& _inventoryType, const std::wstring& _windowTitle, const int8_t& _numberOfSlots, const bool& _useProvidedWindowTitle, const int32_t& _entityid);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1538,9 +1538,9 @@ public:
 	CloseWindow(){}
 	CloseWindow(const int8_t& _windowId);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1560,9 +1560,9 @@ public:
 	ClickWindow(){}
 	ClickWindow(const int8_t& _windowId, const int16_t& _slot, const int8_t& _button, const int16_t& _actionNumber, const int8_t& _mode, const SlotData& _clickedItem);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1597,9 +1597,9 @@ public:
 	SetSlot(){}
 	SetSlot(const int8_t& _windowId, const int16_t& _slot, const SlotData& _slotData);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1625,9 +1625,9 @@ public:
 	SetWindowItems(){}
 	SetWindowItems(const int8_t& _windowId, const int16_t& _count, const std::vector<SlotData>& _slotData);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1653,9 +1653,9 @@ public:
 	UpdateWindowProperty(){}
 	UpdateWindowProperty(const int8_t& _windowId, const int16_t& _property, const int16_t& _value);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1681,9 +1681,9 @@ public:
 	ConfirmTransaction(){}
 	ConfirmTransaction(const int8_t& _windowId, const int16_t& _actionNumber, const bool& _accepted_qm);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowId() const;
@@ -1709,9 +1709,9 @@ public:
 	CreativeInventoryAction(){}
 	CreativeInventoryAction(const int16_t& _slot, const SlotData& _clickedItem);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int16_t& get_slot() const;
@@ -1734,9 +1734,9 @@ public:
 	EnchantItem(){}
 	EnchantItem(const int8_t& _windowID, const int8_t& _enchantment);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_windowID() const;
@@ -1759,9 +1759,9 @@ public:
 	UpdateSign(){}
 	UpdateSign(const int32_t& _x, const int16_t& _y, const int32_t& _z, const std::wstring& _text1, const std::wstring& _text2, const std::wstring& _text3, const std::wstring& _text4);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -1799,9 +1799,9 @@ public:
 	ItemData(){}
 	ItemData(const int16_t& _itemType, const int16_t& _itemID, const int16_t& _textLength, const std::vector<int8_t>& _text);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int16_t& get_itemType() const;
@@ -1830,9 +1830,9 @@ public:
 	UpdateTileEntity(){}
 	UpdateTileEntity(const int32_t& _x, const int16_t& _y, const int32_t& _z, const int8_t& _action, const int16_t& _dataLength, const std::vector<int8_t>& _nbtData);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_x() const;
@@ -1867,9 +1867,9 @@ public:
 	TileEditorOpen_qm(){}
 	TileEditorOpen_qm(const int8_t& _tileEntityId, const int32_t& _x, const int32_t& _y, const int32_t& _z);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_tileEntityId() const;
@@ -1898,9 +1898,9 @@ public:
 	IncrementStatistic(){}
 	IncrementStatistic(const int32_t& _statisticID, const int32_t& _amount);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int32_t& get_statisticID() const;
@@ -1923,9 +1923,9 @@ public:
 	PlayerListItem(){}
 	PlayerListItem(const std::wstring& _playerName, const bool& _online, const int16_t& _ping);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_playerName() const;
@@ -1951,9 +1951,9 @@ public:
 	PlayerAbilities(){}
 	PlayerAbilities(const int8_t& _flags, const float& _flyingSpeed, const float& _walkingSpeed);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_flags() const;
@@ -1979,9 +1979,9 @@ public:
 	TabComplete(){}
 	TabComplete(const std::wstring& _text);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_text() const;
@@ -2001,9 +2001,9 @@ public:
 	ClientSettings(){}
 	ClientSettings(const std::wstring& _locale, const int8_t& _viewDistance, const int8_t& _chatFlags, const int8_t& _difficulty, const bool& _showCape);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_locale() const;
@@ -2035,9 +2035,9 @@ public:
 	ClientStatuses(){}
 	ClientStatuses(const int8_t& _payload);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_payload() const;
@@ -2057,9 +2057,9 @@ public:
 	ScoreboardObjective(){}
 	ScoreboardObjective(const std::wstring& _objectiveName, const std::wstring& _objectiveValue, const int8_t& _createOrRemove);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_objectiveName() const;
@@ -2085,9 +2085,9 @@ public:
 	UpdateScore(){}
 	UpdateScore(const std::wstring& _itemName, const int8_t& _updateOrRemove, const std::wstring& _scoreName, const int32_t& _value);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_itemName() const;
@@ -2116,9 +2116,9 @@ public:
 	DisplayScoreboard(){}
 	DisplayScoreboard(const int8_t& _position, const std::wstring& _scoreName);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_position() const;
@@ -2141,9 +2141,9 @@ public:
 	PluginMessage(){}
 	PluginMessage(const std::wstring& _channel, const int16_t& _length, const std::vector<int8_t>& _data);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_channel() const;
@@ -2169,9 +2169,9 @@ public:
 	EncryptionKeyResponse(){}
 	EncryptionKeyResponse(const int16_t& _sharedSecretLength, const std::vector<int8_t>& _sharedSecret, const int16_t& _verifyTokenLength, const std::vector<int8_t>& _verifyTokenResponse);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int16_t& get_sharedSecretLength() const;
@@ -2200,9 +2200,9 @@ public:
 	EncryptionKeyRequest(){}
 	EncryptionKeyRequest(const std::wstring& _serverId, const int16_t& _publicKeyLength, const std::vector<int8_t>& _publicKey, const int16_t& _verifyTokenLength, const std::vector<int8_t>& _verifyToken);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_serverId() const;
@@ -2234,9 +2234,9 @@ public:
 	ServerListPing(){}
 	ServerListPing(const int8_t& _magic);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const int8_t& get_magic() const;
@@ -2256,9 +2256,9 @@ public:
 	DisconnectOrKick(){}
 	DisconnectOrKick(const std::wstring& _reason);
 
-	virtual void serialize(BinaryBuffer& _dst);
+	virtual void serialize(SimpleBinaryBuffer& _dst);
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0);
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0);
 
 	static const uint8_t& get_messageCode()	{ return m_messageCode; }
 	const std::wstring& get_reason() const;

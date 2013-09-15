@@ -9,7 +9,7 @@
 namespace protocol
 {
 
-typedef std::vector<uint8_t> BinaryBuffer;
+typedef std::vector<uint8_t> SimpleBinaryBuffer;
 
 class PartialMessageException {};
 
@@ -17,25 +17,25 @@ class PartialMessageException {};
 
 // Byte version
 //template<>
-size_t Serialize(BinaryBuffer& _dst, const int8_t& _val);
+size_t Serialize(SimpleBinaryBuffer& _dst, const int8_t& _val);
 // Unsigned byte version
 //template<>
-size_t Serialize(BinaryBuffer& _dst, const uint8_t& _val);
+size_t Serialize(SimpleBinaryBuffer& _dst, const uint8_t& _val);
 // String version
 //template<>
-size_t Serialize(BinaryBuffer& _dst, const std::wstring& _val);
+size_t Serialize(SimpleBinaryBuffer& _dst, const std::wstring& _val);
 
 // Deserialization
 
 // Byte version
 //template<>
-size_t Deserialize(const BinaryBuffer& _src, int8_t& _dst, size_t _offset);
+size_t Deserialize(const SimpleBinaryBuffer& _src, int8_t& _dst, size_t _offset);
 // Unsigned byte version, bad copy-paste
 //template<>
-size_t Deserialize(const BinaryBuffer& _src, uint8_t& _dst, size_t _offset);
+size_t Deserialize(const SimpleBinaryBuffer& _src, uint8_t& _dst, size_t _offset);
 // String version
 //template<>
-size_t Deserialize(const BinaryBuffer& _src, std::wstring& _dst, size_t _offset);
+size_t Deserialize(const SimpleBinaryBuffer& _src, std::wstring& _dst, size_t _offset);
 
 
 // Used to reverse byteorder, replace later.
@@ -58,7 +58,7 @@ T DumbReverseCopy(const T& _arg)
 
 // General version (float-types need this too)
 template<class T>
-size_t Serialize(BinaryBuffer& _dst, const T& _val)
+size_t Serialize(SimpleBinaryBuffer& _dst, const T& _val)
 {
 	T val = DumbReverseCopy(_val);
 	_dst.insert(_dst.end(), (uint8_t*) &val, ((uint8_t*) &val) + sizeof(T));
@@ -67,7 +67,7 @@ size_t Serialize(BinaryBuffer& _dst, const T& _val)
 
 // Array version
 template<class T>
-size_t Serialize(BinaryBuffer& _dst, const std::vector<T>& _val)
+size_t Serialize(SimpleBinaryBuffer& _dst, const std::vector<T>& _val)
 {
 	for(auto itr = _val.begin(); itr != _val.end(); ++itr)
 		Serialize(_dst, *itr);
@@ -79,7 +79,7 @@ size_t Serialize(BinaryBuffer& _dst, const std::vector<T>& _val)
 
 // General version
 template<class T>
-size_t Deserialize(const BinaryBuffer& _src, T& _dst, size_t _offset)
+size_t Deserialize(const SimpleBinaryBuffer& _src, T& _dst, size_t _offset)
 {
 	// This is TCP, baby. Message can arrive in parts.
 	if(_offset + sizeof(T) > _src.size())
@@ -94,7 +94,7 @@ size_t Deserialize(const BinaryBuffer& _src, T& _dst, size_t _offset)
 
 // Array version
 template<class T>
-size_t Deserialize(const BinaryBuffer& _src, std::vector<T>& _dst, size_t _offset, size_t _arrSize)
+size_t Deserialize(const SimpleBinaryBuffer& _src, std::vector<T>& _dst, size_t _offset, size_t _arrSize)
 {
 	if(_offset + sizeof(T) * _arrSize > _src.size())
 		throw PartialMessageException();

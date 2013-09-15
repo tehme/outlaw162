@@ -15,12 +15,12 @@ class ChatMessage : public BaseMessage
 public:
 	ChatMessage(){}
 
-	virtual void serialize(BinaryBuffer& _dst)
+	virtual void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_messageCode);
 	}
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0)
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
 	{
 		int8_t code;
 		_offset = Deserialize(_src, code, _offset);
@@ -57,7 +57,7 @@ public:
 		,	m_onGround(_onGround)
 	{}
 
-	virtual void serialize(BinaryBuffer& _dst)
+	virtual void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_messageCode);
 		Serialize(_dst, m_x);
@@ -69,7 +69,7 @@ public:
 		Serialize(_dst, m_onGround);
 	}
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0)
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
 	{
 		uint8_t code;
 		_offset = Deserialize(_src, code, _offset);
@@ -86,7 +86,7 @@ public:
 		return _offset;
 	}
 
-	virtual size_t deserialize_cts(const BinaryBuffer& _src, size_t _offset = 0)
+	virtual size_t deserialize_cts(const SimpleBinaryBuffer& _src, size_t _offset = 0)
 	{
 		_offset = deserialize(_src, _offset);
 		std::swap(m_stance, m_y);
@@ -130,7 +130,7 @@ struct ModifierData
 	double m_amount;
 	int8_t m_operation;
 
-	void serialize(BinaryBuffer& _dst)
+	void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_uuidMsb);
 		Serialize(_dst, m_uuidLsb);
@@ -138,7 +138,7 @@ struct ModifierData
 		Serialize(_dst, m_operation);
 	}
 
-	size_t deserialize(const BinaryBuffer& _src, size_t _offset)
+	size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
 	{
 		_offset = Deserialize(_src, m_uuidMsb, _offset);
 		_offset = Deserialize(_src, m_uuidLsb, _offset);
@@ -161,7 +161,7 @@ public:
 		,	m_modifiers(_modifiers)
 	{}
 
-	virtual void serialize(BinaryBuffer& _dst)
+	virtual void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_key);
 		Serialize(_dst, m_value);
@@ -170,7 +170,7 @@ public:
 			itr->serialize(_dst);
 	}
 
-	size_t deserialize(const BinaryBuffer& _src, size_t _offset)
+	size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
 	{
 		_offset = Deserialize(_src, m_key, _offset);
 		_offset = Deserialize(_src, m_value, _offset);
@@ -211,7 +211,7 @@ public:
 		,	m_properties(_properties)
 	{}
 
-	virtual void serialize(BinaryBuffer& _dst)
+	virtual void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_messageCode);
 		Serialize(_dst, m_entityid);
@@ -220,7 +220,7 @@ public:
 			itr->serialize(_dst);
 	}
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0)
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
 	{
 		uint8_t code;
 		_offset = Deserialize(_src, code, _offset);
@@ -268,7 +268,7 @@ public:
 		,	m_compressedData(_compressedData)
 	{}
 
-	virtual void serialize(BinaryBuffer& _dst)
+	virtual void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_messageCode);
 		Serialize(_dst, m_x);
@@ -280,7 +280,7 @@ public:
 		Serialize(_dst, m_compressedData);
 	}
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset)
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
 	{
 		int8_t code;
 		_offset = Deserialize(_src, code, _offset);
@@ -350,7 +350,7 @@ public:
 		,	m_data(_data)
 	{}
 
-	virtual void serialize(BinaryBuffer& _dst)
+	virtual void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_messageCode);
 		Serialize(_dst, m_chunkX);
@@ -360,7 +360,7 @@ public:
 		Serialize(_dst, m_data);
 	}
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0)
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
 	{
 		int8_t code;
 		_offset = Deserialize(_src, code, _offset);
@@ -405,7 +405,7 @@ struct ChunkMetaInfo
 	uint16_t m_primaryBitmap; 
 	uint16_t m_addBitmap;
 
-	void serialize(BinaryBuffer& _dst)
+	void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_chunkX);
 		Serialize(_dst, m_chunkZ);
@@ -413,7 +413,7 @@ struct ChunkMetaInfo
 		Serialize(_dst, m_addBitmap);
 	}
 
-	size_t deserialize(const BinaryBuffer& _src, size_t _offset)
+	size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
 	{
 		_offset = Deserialize(_src, m_chunkX, _offset);
 		_offset = Deserialize(_src, m_chunkZ, _offset);
@@ -439,7 +439,7 @@ public:
 		,	m_metaInformation(_metaInformation)
 	{}
 
-	virtual void serialize(BinaryBuffer& _dst)
+	virtual void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_messageCode);
 		Serialize(_dst, m_chunkColumnCount);
@@ -449,7 +449,7 @@ public:
 		Serialize(_dst, m_metaInformation);
 	}
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0)
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
 	{
 		int8_t code;
 		_offset = Deserialize(_src, code, _offset);
@@ -506,7 +506,7 @@ public:
 		,	m_playerMotionZ(_playerMotionZ)
 	{}
 
-	virtual void serialize(BinaryBuffer& _dst)
+	virtual void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_messageCode);
 		Serialize(_dst, m_x);
@@ -521,7 +521,7 @@ public:
 		Serialize(_dst, m_playerMotionZ);
 	}
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset)
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
 	{
 		int8_t code;
 		_offset = Deserialize(_src, code, _offset);
@@ -593,7 +593,7 @@ public:
 		,	m_players(_players)
 	{}
 
-	virtual void serialize(BinaryBuffer& _dst)
+	virtual void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_messageCode);
 		Serialize(_dst, m_teamName);
@@ -614,7 +614,7 @@ public:
 		}
 	}
 
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset = 0)
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset = 0)
 	{
 		int8_t code;
 		_offset = Deserialize(_src, code, _offset);

@@ -1,13 +1,13 @@
 //#include "callbacks.hpp"
 //
 //
-//size_t Handler_0x00_KeepAlive(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+//size_t Handler_0x00_KeepAlive(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 //{
 //	std::cout << "Keep alive!" << std::endl;
 //	return protocol::msg::KeepAlive().deserialize(_src, _offset);
 //}
 //
-//size_t Handler_0x03_Chat(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+//size_t Handler_0x03_Chat(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 //{
 //	protocol::msg::ChatMessage chatMsg;
 //	_offset = chatMsg.deserialize(_src, _offset);
@@ -15,7 +15,7 @@
 //	return _offset;
 //}
 //
-//size_t Handler_0x06_SpawnPosition(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+//size_t Handler_0x06_SpawnPosition(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 //{
 //	protocol::msg::SpawnPosition sp;
 //	_offset = sp.deserialize(_src, _offset);
@@ -23,7 +23,7 @@
 //	return _offset;
 //}
 //
-//size_t Handler_0x08_UpdateHealth(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+//size_t Handler_0x08_UpdateHealth(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 //{
 //	protocol::msg::UpdateHealth tmp;
 //	_offset = tmp.deserialize(_src, _offset);
@@ -33,7 +33,7 @@
 //	return _offset;
 //}
 //
-//size_t Handler_0x0D_PlayerPositionAndLook(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+//size_t Handler_0x0D_PlayerPositionAndLook(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 //{
 //	if(_clientInfo.m_initialPosGot == false)
 //		_clientInfo.m_initialPosGot = true;
@@ -48,7 +48,7 @@
 //	return _offset;
 //}
 //
-//size_t Handler_0xFF_DisconnectOrKick(const protocol::BinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
+//size_t Handler_0xFF_DisconnectOrKick(const protocol::SimpleBinaryBuffer& _src, size_t _offset, ClientInfo& _clientInfo)
 //{
 //	protocol::msg::DisconnectOrKick dok;
 //	_offset = dok.deserialize(_src, _offset);

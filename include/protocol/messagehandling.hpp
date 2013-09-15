@@ -8,11 +8,11 @@
 
 namespace protocol {
 
-size_t SkipMessage(const protocol::BinaryBuffer& _src, size_t _offset);
+size_t SkipMessage(const protocol::SimpleBinaryBuffer& _src, size_t _offset);
 
 
 template<class CallbackMapT, class ClientInfoT> // ClientInfoT should be renamed
-size_t HandleMessage(const protocol::BinaryBuffer& _src, size_t _offset, 
+size_t HandleMessage(const protocol::SimpleBinaryBuffer& _src, size_t _offset, 
 	const CallbackMapT& _callbacks, ClientInfoT& _clientInfo)
 {
 	auto itr = _callbacks.find(_src[_offset]);
@@ -25,7 +25,7 @@ size_t HandleMessage(const protocol::BinaryBuffer& _src, size_t _offset,
 
 
 template<class CallbackMapT, class ClientInfoT>
-void HandleMessages(protocol::BinaryBuffer& _buf, const CallbackMapT& _callbacks, ClientInfoT& _clientInfo)
+void HandleMessages(protocol::SimpleBinaryBuffer& _buf, const CallbackMapT& _callbacks, ClientInfoT& _clientInfo)
 {
 	static size_t offset = 0; // remove static if not necessary
 

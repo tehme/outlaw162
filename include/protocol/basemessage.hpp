@@ -10,12 +10,12 @@ namespace msg {
 class SlotData
 {
 public:
-	void serialize(BinaryBuffer& _dst)
+	void serialize(SimpleBinaryBuffer& _dst)
 	{
 		std::cout << __FUNCTION__ << " is NYI." << std::endl;
 	}
 
-	size_t deserialize(const BinaryBuffer& _src, size_t _offset)
+	size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
 	{
 		_offset = Deserialize(_src, m_blockID, _offset);
 		if(m_blockID == -1)
@@ -44,12 +44,12 @@ private:
 class ObjectData
 {
 public:
-	void serialize(BinaryBuffer& _dst)
+	void serialize(SimpleBinaryBuffer& _dst)
 	{
 		std::cout << __FUNCTION__ << " is NYI." << std::endl;
 	}
 	
-	size_t deserialize(const BinaryBuffer& _src, size_t _offset)
+	size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
 	{
 		_offset = Deserialize(_src, m_code, _offset);
 		if(m_code == 0)
@@ -75,14 +75,14 @@ struct Coordinates
 	T m_y;
 	T m_z;
 
-	void serialize(BinaryBuffer& _dst)
+	void serialize(SimpleBinaryBuffer& _dst)
 	{
 		Serialize(_dst, m_x);
 		Serialize(_dst, m_y);
 		Serialize(_dst, m_z);
 	}
 
-	size_t deserialize(const BinaryBuffer& _src, size_t _offset)
+	size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
 	{
 		_offset = Deserialize(_src, m_x, _offset);
 		_offset = Deserialize(_src, m_y, _offset);
@@ -96,12 +96,12 @@ struct Coordinates
 class Metadata
 {
 public:
-	void serialize(BinaryBuffer& _dst)
+	void serialize(SimpleBinaryBuffer& _dst)
 	{
 		std::cout << __FUNCTION__ << " is NYI." << std::endl;
 	}
 	
-	size_t deserialize(const BinaryBuffer& _src, size_t _offset)
+	size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset)
 	{
 		while(1)
 		{
@@ -146,8 +146,8 @@ class WrongMessageException {};
 class BaseMessage
 {
 public:
-	virtual void serialize(BinaryBuffer& _dst) = 0;
-	virtual size_t deserialize(const BinaryBuffer& _src, size_t _offset) = 0;
+	virtual void serialize(SimpleBinaryBuffer& _dst) = 0;
+	virtual size_t deserialize(const SimpleBinaryBuffer& _src, size_t _offset) = 0;
 
 private:
 	//int8_t m_messageID;

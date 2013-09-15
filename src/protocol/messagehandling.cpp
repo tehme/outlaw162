@@ -3,7 +3,7 @@
 
 namespace protocol {
 
-size_t SkipMessage(const protocol::BinaryBuffer& _src, size_t _offset)
+size_t SkipMessage(const protocol::SimpleBinaryBuffer& _src, size_t _offset)
 {
 
 	switch(_src[_offset])

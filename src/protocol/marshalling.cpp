@@ -5,7 +5,7 @@ namespace protocol
 
 // Byte version
 //template<>
-size_t Serialize(BinaryBuffer& _dst, const int8_t& _val)
+size_t Serialize(SimpleBinaryBuffer& _dst, const int8_t& _val)
 {
 	_dst.push_back(_val);
 	return 0;
@@ -13,7 +13,7 @@ size_t Serialize(BinaryBuffer& _dst, const int8_t& _val)
 
 // Unsigned byte version
 //template<>
-size_t Serialize(BinaryBuffer& _dst, const uint8_t& _val)
+size_t Serialize(SimpleBinaryBuffer& _dst, const uint8_t& _val)
 {
 	_dst.push_back(_val);
 	return 0;
@@ -21,7 +21,7 @@ size_t Serialize(BinaryBuffer& _dst, const uint8_t& _val)
 
 // String version
 //template<>
-size_t Serialize(BinaryBuffer& _dst, const std::wstring& _val)
+size_t Serialize(SimpleBinaryBuffer& _dst, const std::wstring& _val)
 {
 	int16_t len = _val.size();
 	Serialize(_dst, len);
@@ -37,7 +37,7 @@ size_t Serialize(BinaryBuffer& _dst, const std::wstring& _val)
 
 // Byte version
 //template<>
-size_t Deserialize(const BinaryBuffer& _src, int8_t& _dst, size_t _offset)
+size_t Deserialize(const SimpleBinaryBuffer& _src, int8_t& _dst, size_t _offset)
 {
 	if(_offset + 1 > _src.size())
 		throw PartialMessageException();
@@ -48,7 +48,7 @@ size_t Deserialize(const BinaryBuffer& _src, int8_t& _dst, size_t _offset)
 
 // Unsigned byte version, bad copy-paste
 //template<>
-size_t Deserialize(const BinaryBuffer& _src, uint8_t& _dst, size_t _offset)
+size_t Deserialize(const SimpleBinaryBuffer& _src, uint8_t& _dst, size_t _offset)
 {
 	if(_offset + 1 > _src.size())
 		throw PartialMessageException();
@@ -59,7 +59,7 @@ size_t Deserialize(const BinaryBuffer& _src, uint8_t& _dst, size_t _offset)
 
 // String version
 //template<>
-size_t Deserialize(const BinaryBuffer& _src, std::wstring& _dst, size_t _offset)
+size_t Deserialize(const SimpleBinaryBuffer& _src, std::wstring& _dst, size_t _offset)
 {
 	if(_offset + sizeof(int16_t) + _dst.size() * sizeof(std::wstring::size_type) > _src.size())
 		throw PartialMessageException();
