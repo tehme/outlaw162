@@ -2,7 +2,6 @@
 #define _PROTOCOL_BASE_MESSAGE_HPP_
 
 #include <iostream>
-//#include "marshalling.hpp"
 #include "binarybuffer.hpp"
 
 namespace protocol {

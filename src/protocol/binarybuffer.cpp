@@ -4,9 +4,11 @@
 namespace protocol {
 
 
-BinaryBuffer::BinaryBuffer()
+BinaryBuffer::BinaryBuffer(size_t _capacity)
 	:	m_offset(0)
-{}
+{
+	m_data.reserve(_capacity);
+}
 
 
 void BinaryBuffer::addData(const std::vector<uint8_t>& _data)

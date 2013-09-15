@@ -14,7 +14,7 @@ namespace protocol {
 class BinaryBuffer
 {
 public:
-	BinaryBuffer();
+	BinaryBuffer(size_t _capacity = 0);
 
 	template<class T>			void write(const T& _src);
 	template<class T>			void write(const std::vector<T>& _src);

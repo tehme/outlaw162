@@ -3,6 +3,7 @@
 
 namespace protocol {
 
+
 void SkipMessage(const protocol::BinaryBuffer& _src)
 {
 	switch(_src.atOffset())
@@ -68,5 +69,6 @@ void SkipMessage(const protocol::BinaryBuffer& _src)
 	}
 
 }
+
 
 } // namespace protocol
